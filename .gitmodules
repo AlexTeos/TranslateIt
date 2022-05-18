@@ -1,0 +1,3 @@
+[submodule "src/TelegramAPI"]
+	path = src/TelegramAPI
+	url = https://github.com/AlexTeos/TelegramAPI.git
