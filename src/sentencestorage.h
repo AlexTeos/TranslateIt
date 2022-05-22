@@ -6,30 +6,26 @@
 #include <QString>
 #include <QXmlStreamReader>
 
-typedef QPair<QString, QString> Sentence;
+#include "common.h"
 
-enum SentenceStorageState
-{
-    Uninitialized = 0,
-    Initialized,
-    Error
-};
+typedef QPair<QString, QString> Sentence;
 
 class SentenceStorage
 {
 public:
-    SentenceStorage() : m_state(SentenceStorageState::Uninitialized){};
+    SentenceStorage() : m_state(State::Uninitialized){};
     SentenceStorage(const QString& fileName);
 
     //TODO: do it in other thread
     bool setXMLFile(const QString& fileName);
+    //TODO: add consistence reading
     bool getRandomSentence(Sentence& sentence);
     bool isOpen();
 
 private:
-    SentenceStorageState m_state;
-    QXmlStreamReader     m_xmlFile;
-    QVector<Sentence>    m_sentences;
+    State             m_state;
+    QXmlStreamReader  m_xmlFile;
+    QVector<Sentence> m_sentences;
 };
 
 #endif // SENTENCESTORAGE_H

@@ -2,7 +2,7 @@
 
 SentenceStorage::SentenceStorage(const QString& fileName)
 {
-    m_state = setXMLFile(fileName) ? SentenceStorageState::Initialized : SentenceStorageState::Error;
+    m_state = setXMLFile(fileName) ? State::Initialized : State::Error;
 }
 
 bool SentenceStorage::setXMLFile(const QString& fileName)
@@ -10,7 +10,7 @@ bool SentenceStorage::setXMLFile(const QString& fileName)
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly))
     {
-        m_state = SentenceStorageState::Error;
+        m_state = State::Error;
         return false;
     }
     m_xmlFile.setDevice(&file);
@@ -53,7 +53,7 @@ bool SentenceStorage::setXMLFile(const QString& fileName)
 
     file.close();
 
-    m_state = m_sentences.size() ? SentenceStorageState::Initialized : SentenceStorageState::Error;
+    m_state = m_sentences.size() ? State::Initialized : State::Error;
     return m_sentences.size();
 }
 
@@ -69,5 +69,5 @@ bool SentenceStorage::getRandomSentence(Sentence& sentence)
 
 bool SentenceStorage::isOpen()
 {
-    return m_state == SentenceStorageState::Initialized;
+    return m_state == State::Initialized;
 }

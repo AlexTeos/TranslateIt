@@ -75,7 +75,8 @@ SOURCES += \
     TelegramAPI/types/voicechatscheduled.cpp \
     TelegramAPI/types/voicechatstarted.cpp \
         main.cpp \
-    sentencestorage.cpp
+    sentencestorage.cpp \
+    translateitbot.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -148,4 +149,6 @@ HEADERS += \
     TelegramAPI/types/voicechatparticipantsinvited.h \
     TelegramAPI/types/voicechatscheduled.h \
     TelegramAPI/types/voicechatstarted.h \
-    sentencestorage.h
+    common.h \
+    sentencestorage.h \
+    translateitbot.h
