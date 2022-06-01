@@ -50,6 +50,18 @@ bool TranslateItBot::proceedUpdateWithCallback(const Telegram::CallbackQuery::Pt
             return true;
         }
     }
+    else if (callback->m_data == "Check")
+    {
+        if (sendTranslation(callback->m_from->m_id))
+        {
+            // Remove inline keyboard
+            m_api.editMessageText(callback->m_message->m_text.value(),
+                                  callback->m_message->m_chat->m_id,
+                                  callback->m_message->m_message_id);
+            m_api.answerCallbackQuery(callback->m_id);
+            return true;
+        }
+    }
     else if (callback->m_data == "New")
     {
         if (sendNewSentence(callback->m_from->m_id))
@@ -68,14 +80,22 @@ bool TranslateItBot::proceedUpdateWithCallback(const Telegram::CallbackQuery::Pt
 
 bool TranslateItBot::sendNewSentence(const qint64& id)
 {
+    Telegram::InlineKeyboardButton::Ptr inlineKeyboardButtonSkip;
+    inlineKeyboardButtonSkip                  = Telegram::InlineKeyboardButton::Ptr::create();
+    inlineKeyboardButtonSkip->m_text          = "Skip Sentence";
+    inlineKeyboardButtonSkip->m_callback_data = "Skip";
+
+    Telegram::InlineKeyboardButton::Ptr inlineKeyboardButtonCheck;
+    inlineKeyboardButtonCheck                  = Telegram::InlineKeyboardButton::Ptr::create();
+    inlineKeyboardButtonCheck->m_text          = "Check Sentence";
+    inlineKeyboardButtonCheck->m_callback_data = "Check";
+
     Telegram::InlineKeyboardMarkup::Ptr inlineKeyboardMarkup;
-    Telegram::InlineKeyboardButton::Ptr inlineKeyboardButton;
-    inlineKeyboardButton                  = Telegram::InlineKeyboardButton::Ptr::create();
-    inlineKeyboardButton->m_text          = "Skip Sentence";
-    inlineKeyboardButton->m_callback_data = "Skip";
-    inlineKeyboardMarkup                  = Telegram::InlineKeyboardMarkup::Ptr::create();
-    inlineKeyboardMarkup->m_inline_keyboard.resize(1);
-    inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButton);
+    inlineKeyboardMarkup = Telegram::InlineKeyboardMarkup::Ptr::create();
+    inlineKeyboardMarkup->m_inline_keyboard.resize(2);
+    inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButtonSkip);
+    inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButtonCheck);
+
     m_sentenceStorage.getRandomSentence(m_sentence);
 
     return m_api
@@ -119,14 +139,22 @@ bool TranslateItBot::sendTranslation(const qint64& id)
 
 bool TranslateItBot::replaceSentence(const qint64& chat_id, const qint64& message_id)
 {
+    Telegram::InlineKeyboardButton::Ptr inlineKeyboardButtonSkip;
+    inlineKeyboardButtonSkip                  = Telegram::InlineKeyboardButton::Ptr::create();
+    inlineKeyboardButtonSkip->m_text          = "Skip Sentence";
+    inlineKeyboardButtonSkip->m_callback_data = "Skip";
+
+    Telegram::InlineKeyboardButton::Ptr inlineKeyboardButtonCheck;
+    inlineKeyboardButtonCheck                  = Telegram::InlineKeyboardButton::Ptr::create();
+    inlineKeyboardButtonCheck->m_text          = "Check Sentence";
+    inlineKeyboardButtonCheck->m_callback_data = "Check";
+
     Telegram::InlineKeyboardMarkup::Ptr inlineKeyboardMarkup;
-    Telegram::InlineKeyboardButton::Ptr inlineKeyboardButton;
-    inlineKeyboardButton                  = Telegram::InlineKeyboardButton::Ptr::create();
-    inlineKeyboardButton->m_text          = "Skip Sentence";
-    inlineKeyboardButton->m_callback_data = "Skip";
-    inlineKeyboardMarkup                  = Telegram::InlineKeyboardMarkup::Ptr::create();
-    inlineKeyboardMarkup->m_inline_keyboard.resize(1);
-    inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButton);
+    inlineKeyboardMarkup = Telegram::InlineKeyboardMarkup::Ptr::create();
+    inlineKeyboardMarkup->m_inline_keyboard.resize(2);
+    inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButtonSkip);
+    inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButtonCheck);
+
     m_sentenceStorage.getRandomSentence(m_sentence);
 
     return m_api
