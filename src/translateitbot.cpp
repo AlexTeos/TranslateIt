@@ -24,109 +24,45 @@ void TranslateItBot::start()
             {
                 if (update->m_callback_query)
                 {
-                    proceedUpdateWithCallback(update->m_callback_query);
+                    if (sendNewSentence(update->m_callback_query->m_from->m_id))
+                    {
+                        m_api.editMessageText(update->m_callback_query->m_message->m_text.value(),
+                                              update->m_callback_query->m_message->m_chat->m_id,
+                                              update->m_callback_query->m_message->m_message_id);
+                    }
                 }
-                else if (update->m_message)
+                else if ((update->m_message) && (update->m_message->m_text == "/start"))
                 {
-                    proceedUpdateWithMessage(update->m_message);
+                    sendNewSentence(update->m_message->m_from->m_id);
                 }
                 m_offset = update->m_update_id + 1;
             }
         }
         else
         {
-            QThread::sleep(1);
+            QThread::msleep(100);
         }
     }
-}
-
-bool TranslateItBot::proceedUpdateWithCallback(const Telegram::CallbackQuery::Ptr& callback)
-{
-    if (callback->m_data == "Skip")
-    {
-        if (replaceSentence(callback->m_message->m_chat->m_id, callback->m_message->m_message_id))
-        {
-            m_api.answerCallbackQuery(callback->m_id);
-            return true;
-        }
-    }
-    else if (callback->m_data == "Check")
-    {
-        if (sendTranslation(callback->m_from->m_id))
-        {
-            // Remove inline keyboard
-            m_api.editMessageText(callback->m_message->m_text.value(),
-                                  callback->m_message->m_chat->m_id,
-                                  callback->m_message->m_message_id);
-            m_api.answerCallbackQuery(callback->m_id);
-            return true;
-        }
-    }
-    else if (callback->m_data == "New")
-    {
-        if (sendNewSentence(callback->m_from->m_id))
-        {
-            // Remove inline keyboard
-            m_api.editMessageText(callback->m_message->m_text.value(),
-                                  callback->m_message->m_chat->m_id,
-                                  callback->m_message->m_message_id);
-            m_api.answerCallbackQuery(callback->m_id);
-            return true;
-        }
-    }
-
-    return false;
 }
 
 bool TranslateItBot::sendNewSentence(const qint64& id)
 {
     Telegram::InlineKeyboardButton::Ptr inlineKeyboardButtonSkip;
     inlineKeyboardButtonSkip                  = Telegram::InlineKeyboardButton::Ptr::create();
-    inlineKeyboardButtonSkip->m_text          = "Skip Sentence";
-    inlineKeyboardButtonSkip->m_callback_data = "Skip";
-
-    Telegram::InlineKeyboardButton::Ptr inlineKeyboardButtonCheck;
-    inlineKeyboardButtonCheck                  = Telegram::InlineKeyboardButton::Ptr::create();
-    inlineKeyboardButtonCheck->m_text          = "Check Sentence";
-    inlineKeyboardButtonCheck->m_callback_data = "Check";
+    inlineKeyboardButtonSkip->m_text          = "New Sentence";
+    inlineKeyboardButtonSkip->m_callback_data = "New";
 
     Telegram::InlineKeyboardMarkup::Ptr inlineKeyboardMarkup;
     inlineKeyboardMarkup = Telegram::InlineKeyboardMarkup::Ptr::create();
-    inlineKeyboardMarkup->m_inline_keyboard.resize(2);
-    inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButtonSkip);
-    inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButtonCheck);
-
-    m_sentenceStorage.getRandomSentence(m_sentence);
-
-    return m_api
-        .sendMessage(id,
-                     m_sentence.second,
-                     std::nullopt,
-                     std::nullopt,
-                     std::nullopt,
-                     std::nullopt,
-                     std::nullopt,
-                     std::nullopt,
-                     std::nullopt,
-                     inlineKeyboardMarkup)
-        .has_value();
-}
-
-bool TranslateItBot::sendTranslation(const qint64& id)
-{
-    Telegram::InlineKeyboardMarkup::Ptr inlineKeyboardMarkup;
-    Telegram::InlineKeyboardButton::Ptr inlineKeyboardButton;
-    inlineKeyboardButton                  = Telegram::InlineKeyboardButton::Ptr::create();
-    inlineKeyboardButton->m_text          = "New Sentence";
-    inlineKeyboardButton->m_callback_data = "New";
-    inlineKeyboardMarkup                  = Telegram::InlineKeyboardMarkup::Ptr::create();
     inlineKeyboardMarkup->m_inline_keyboard.resize(1);
-    inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButton);
+    inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButtonSkip);
+
+    m_sentenceStorage.getRandomSentence(m_sentence);
 
     return m_api
         .sendMessage(id,
-                     m_sentence.first,
-                     std::nullopt,
+                     m_sentence.second + "\n" + "\n<tg-spoiler>" + m_sentence.first + "</tg-spoiler>",
+                     "HTML",
                      std::nullopt,
                      std::nullopt,
                      std::nullopt,
@@ -135,48 +71,4 @@ bool TranslateItBot::sendTranslation(const qint64& id)
                      std::nullopt,
                      inlineKeyboardMarkup)
         .has_value();
-}
-
-bool TranslateItBot::replaceSentence(const qint64& chat_id, const qint64& message_id)
-{
-    Telegram::InlineKeyboardButton::Ptr inlineKeyboardButtonSkip;
-    inlineKeyboardButtonSkip                  = Telegram::InlineKeyboardButton::Ptr::create();
-    inlineKeyboardButtonSkip->m_text          = "Skip Sentence";
-    inlineKeyboardButtonSkip->m_callback_data = "Skip";
-
-    Telegram::InlineKeyboardButton::Ptr inlineKeyboardButtonCheck;
-    inlineKeyboardButtonCheck                  = Telegram::InlineKeyboardButton::Ptr::create();
-    inlineKeyboardButtonCheck->m_text          = "Check Sentence";
-    inlineKeyboardButtonCheck->m_callback_data = "Check";
-
-    Telegram::InlineKeyboardMarkup::Ptr inlineKeyboardMarkup;
-    inlineKeyboardMarkup = Telegram::InlineKeyboardMarkup::Ptr::create();
-    inlineKeyboardMarkup->m_inline_keyboard.resize(2);
-    inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButtonSkip);
-    inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButtonCheck);
-
-    m_sentenceStorage.getRandomSentence(m_sentence);
-
-    return m_api
-        .editMessageText(m_sentence.second,
-                         chat_id,
-                         message_id,
-                         std::nullopt,
-                         std::nullopt,
-                         std::nullopt,
-                         std::nullopt,
-                         inlineKeyboardMarkup)
-        .has_value();
-}
-
-bool TranslateItBot::proceedUpdateWithMessage(const Telegram::Message::Ptr& message)
-{
-    if (message->m_text == "/start")
-    {
-        return sendNewSentence(message->m_from->m_id);
-    }
-    else
-    {
-        return sendTranslation(message->m_from->m_id);
-    }
 }
