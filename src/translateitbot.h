@@ -3,7 +3,8 @@
 
 #include <QString>
 
-#include "TelegramAPI/api.h"
+#include <telegramapi.h>
+
 #include "sentencestorage.h"
 
 class TranslateItBot
