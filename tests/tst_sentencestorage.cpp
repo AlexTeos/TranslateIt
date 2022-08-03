@@ -2,18 +2,25 @@
 
 void TestSentenceStorage::initTestCase()
 {
-    QStringList tmsFiles = QDir().entryList(QStringList() << "*.tmx", QDir::Files);
-    QVERIFY(tmsFiles.size());
-    QVERIFY(m_sentenceStorage.setXMLFile(tmsFiles[0]));
+    QStringList tsvFiles = QDir().entryList(QStringList() << "*.tsv", QDir::Files);
+    QVERIFY(tsvFiles.size());
+    for (const auto& tsvFile : tsvFiles)
+    {
+        SentenceStorage sentenceStorage(tsvFile);
+        QVERIFY(sentenceStorage.state() == State::Initialized);
+        m_sentenceStorages.push_back(std::move(sentenceStorage));
+    }
 }
 
 void TestSentenceStorage::cleanupTestCase() {}
 
-void TestSentenceStorage::cleanupTestGetRandomSentence()
+void TestSentenceStorage::getRandomSentence()
 {
-    Sentence sentence;
-    for (int i = 0; i < 10; ++i)
+    for (const auto& sentenceStorage : m_sentenceStorages)
     {
-        QVERIFY(m_sentenceStorage.getRandomSentence(sentence));
+        for (int i = 0; i < 10; ++i)
+        {
+            QVERIFY(sentenceStorage.randomSentence().first != "");
+        }
     }
 }

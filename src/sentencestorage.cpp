@@ -1,73 +1,60 @@
-#include "sentencestorage.h"
+#include <QFileInfo>
 
-SentenceStorage::SentenceStorage(const QString& fileName)
+#include "sentencetorage.h"
+
+SentenceStorage::SentenceStorage(const QString& filePath) : m_state(State::Uninitialized)
 {
-    m_state = setXMLFile(fileName) ? State::Initialized : State::Error;
+    m_state = load(filePath) ? State::Initialized : State::Error;
 }
 
-bool SentenceStorage::setXMLFile(const QString& fileName)
+bool SentenceStorage::load(const QString& filePath)
 {
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        m_state = State::Error;
+    QStringList langiagesList = QFileInfo(filePath).fileName().split(QRegExp("[-.]"));
+    if (langiagesList.size() != 3 && (Languages.find(langiagesList[0]) != Languages.cend()) &&
+        (Languages.find(langiagesList[1]) != Languages.cend()))
         return false;
-    }
-    m_xmlFile.setDevice(&file);
+    m_languages.first  = Languages[langiagesList[0]];
+    m_languages.second = Languages[langiagesList[1]];
 
-    if (m_xmlFile.readNextStartElement())
+    QFile file(filePath);
+    if (file.open(QIODevice::ReadOnly))
     {
-        if (m_xmlFile.name() == QStringLiteral("tmx"))
+        while (not file.atEnd())
         {
-            while (m_xmlFile.readNextStartElement())
+            QList<QByteArray> query = file.readLine().split(0x09);
+            if (query.size() == 4)
             {
-                if (m_xmlFile.name() == QStringLiteral("body"))
-                {
-                    while (m_xmlFile.readNextStartElement())
-                    {
-                        if (m_xmlFile.name() == QStringLiteral("seg"))
-                        {
-                            Sentence sentence;
-                            sentence.first = m_xmlFile.readElementText();
-
-                            m_xmlFile.skipCurrentElement();
-
-                            if (m_xmlFile.readNextStartElement() && m_xmlFile.readNextStartElement())
-                            {
-                                if (m_xmlFile.name() == QStringLiteral("seg"))
-                                {
-                                    sentence.second = m_xmlFile.readElementText();
-                                    m_sentences.push_back(sentence);
-                                    m_xmlFile.skipCurrentElement();
-                                    m_xmlFile.skipCurrentElement();
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                    m_xmlFile.skipCurrentElement();
+                m_sentences.push_back(Sentence(query[1], query[3]));
             }
         }
+        file.close();
+        return true;
     }
-
     file.close();
-
-    m_state = m_sentences.size() ? State::Initialized : State::Error;
-    return m_sentences.size();
+    return false;
 }
 
-bool SentenceStorage::getRandomSentence(Sentence& sentence)
+// TODO: ref?
+const QPair<Language, Language>& SentenceStorage::languages() const
 {
-    if (not m_sentences.size()) return false;
+    return m_languages;
+}
+
+Sentence SentenceStorage::randomSentence() const
+{
+    if (not m_sentences.size()) Sentence();
 
     quint32 id = QRandomGenerator::global()->bounded(m_sentences.size());
-    sentence   = m_sentences[id];
 
-    return true;
+    return m_sentences[id];
 }
 
-bool SentenceStorage::isOpen()
+bool SentenceStorage::isOpen() const
 {
     return m_state == State::Initialized;
+}
+
+State SentenceStorage::state() const
+{
+    return m_state;
 }

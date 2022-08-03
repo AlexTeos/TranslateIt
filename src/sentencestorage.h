@@ -2,30 +2,45 @@
 #define SENTENCESTORAGE_H
 
 #include <QFile>
+#include <QHash>
 #include <QRandomGenerator>
 #include <QString>
 #include <QXmlStreamReader>
 
 #include "common.h"
 
+enum class Language
+{
+    EN,
+    RU,
+    FI
+};
+
+static const QHash<QString, Language> Languages{{QStringLiteral("EN"), Language::EN},
+                                                {QStringLiteral("RU"), Language::RU},
+                                                {QStringLiteral("FI"), Language::FI}};
+
 typedef QPair<QString, QString> Sentence;
 
 class SentenceStorage
 {
 public:
-    SentenceStorage() : m_state(State::Uninitialized){};
-    SentenceStorage(const QString& fileName);
+    SentenceStorage(const QString& filePath);
 
-    //TODO: do it in other thread
-    bool setXMLFile(const QString& fileName);
-    //TODO: add consistence reading
-    bool getRandomSentence(Sentence& sentence);
-    bool isOpen();
+    //TODO: add consistent reading
+    //TODO: return ref?
+    Sentence                         randomSentence() const;
+    bool                             isOpen() const;
+    State                            state() const;
+    const QPair<Language, Language>& languages() const;
 
 private:
-    State             m_state;
-    QXmlStreamReader  m_xmlFile;
-    QVector<Sentence> m_sentences;
+    //TODO: do it in other thread
+    bool load(const QString& filePath);
+
+    QPair<Language, Language> m_languages;
+    State                     m_state;
+    QVector<Sentence>         m_sentences;
 };
 
 #endif // SENTENCESTORAGE_H

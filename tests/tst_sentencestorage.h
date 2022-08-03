@@ -10,8 +10,8 @@ class TestSentenceStorage : public QObject
 private slots:
     void initTestCase();
     void cleanupTestCase();
-    void cleanupTestGetRandomSentence();
+    void getRandomSentence();
 
 private:
-    SentenceStorage m_sentenceStorage;
+    QVector<SentenceStorage> m_sentenceStorages;
 };

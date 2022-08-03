@@ -2,10 +2,13 @@
 
 #include <QThread>
 
-TranslateItBot::TranslateItBot(const QString& token, const QString& tmx) : m_state(Error)
+TranslateItBot::TranslateItBot(const QString& token, const QString& languageStoragePath)
+    : m_state(Error), m_languageStorage(languageStoragePath)
 {
-    if (not m_sentenceStorage.setXMLFile(tmx)) return;
+    if (m_languageStorage.state() != State::Initialized) return;
     if (not m_api.start(token)) return;
+
+    m_sentenceStorage = m_languageStorage.sentenceStorage(Language::RU, Language::EN);
 
     m_state = State::Initialized;
 }
@@ -57,11 +60,11 @@ bool TranslateItBot::sendNewSentence(const qint64& id)
     inlineKeyboardMarkup->m_inline_keyboard.resize(1);
     inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButtonSkip);
 
-    m_sentenceStorage.getRandomSentence(m_sentence);
+    Sentence sentence = m_sentenceStorage.get()->randomSentence();
 
     return m_api
         .sendMessage(id,
-                     m_sentence.second + "\n" + "\n<tg-spoiler>" + m_sentence.first + "</tg-spoiler>",
+                     sentence.first + "\n" + "\n<tg-spoiler>" + sentence.second + "</tg-spoiler>",
                      "HTML",
                      std::nullopt,
                      std::nullopt,
