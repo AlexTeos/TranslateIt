@@ -1,6 +1,6 @@
-#include <QFileInfo>
+#include "sentencestorage.h"
 
-#include "sentencetorage.h"
+#include <QFileInfo>
 
 SentenceStorage::SentenceStorage(const QString& filePath) : m_state(State::Uninitialized)
 {
@@ -40,13 +40,11 @@ const QPair<Language, Language>& SentenceStorage::languages() const
     return m_languages;
 }
 
-Sentence SentenceStorage::randomSentence() const
+SentencePtr SentenceStorage::randomSentence() const
 {
     if (not m_sentences.size()) Sentence();
 
-    quint32 id = QRandomGenerator::global()->bounded(m_sentences.size());
-
-    return m_sentences[id];
+    return m_sentences.cbegin() + QRandomGenerator::global()->bounded(m_sentences.size());
 }
 
 bool SentenceStorage::isOpen() const

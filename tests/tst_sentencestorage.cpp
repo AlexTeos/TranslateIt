@@ -20,7 +20,7 @@ void TestSentenceStorage::getRandomSentence()
     {
         for (int i = 0; i < 10; ++i)
         {
-            QVERIFY(sentenceStorage.randomSentence().first != "");
+            QVERIFY(sentenceStorage.randomSentence()->first != "");
         }
     }
 }

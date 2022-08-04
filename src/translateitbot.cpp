@@ -8,7 +8,15 @@ TranslateItBot::TranslateItBot(const QString& token, const QString& languageStor
     if (m_languageStorage.state() != State::Initialized) return;
     if (not m_api.start(token)) return;
 
-    m_sentenceStorage = m_languageStorage.sentenceStorage(Language::RU, Language::EN);
+    //TODO: check destruction
+    m_newSentence = m_languageStorage.sentenceGetter(Language::RU, Language::EN);
+
+    if (not m_newSentence)
+    {
+        m_newSentence = m_languageStorage.sentenceGetter(Language::EN, Language::RU);
+        if (not m_newSentence) return;
+        m_reversedSentenceStorage = true;
+    }
 
     m_state = State::Initialized;
 }
@@ -60,18 +68,32 @@ bool TranslateItBot::sendNewSentence(const qint64& id)
     inlineKeyboardMarkup->m_inline_keyboard.resize(1);
     inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButtonSkip);
 
-    Sentence sentence = m_sentenceStorage.get()->randomSentence();
+    SentencePtr sentence = m_newSentence();
 
-    return m_api
-        .sendMessage(id,
-                     sentence.first + "\n" + "\n<tg-spoiler>" + sentence.second + "</tg-spoiler>",
-                     "HTML",
-                     std::nullopt,
-                     std::nullopt,
-                     std::nullopt,
-                     std::nullopt,
-                     std::nullopt,
-                     std::nullopt,
-                     inlineKeyboardMarkup)
-        .has_value();
+    if (not m_reversedSentenceStorage)
+        return m_api
+            .sendMessage(id,
+                         sentence->first + "\n\n<tg-spoiler>" + sentence->second + "</tg-spoiler>",
+                         "HTML",
+                         std::nullopt,
+                         std::nullopt,
+                         std::nullopt,
+                         std::nullopt,
+                         std::nullopt,
+                         std::nullopt,
+                         inlineKeyboardMarkup)
+            .has_value();
+    else
+        return m_api
+            .sendMessage(id,
+                         sentence->second + "\n\n<tg-spoiler>" + sentence->first + "</tg-spoiler>",
+                         "HTML",
+                         std::nullopt,
+                         std::nullopt,
+                         std::nullopt,
+                         std::nullopt,
+                         std::nullopt,
+                         std::nullopt,
+                         inlineKeyboardMarkup)
+            .has_value();
 }

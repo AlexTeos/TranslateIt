@@ -11,9 +11,7 @@ QSharedPointer<SentenceStorage> LanguageStorage::sentenceStorage(Language langSh
 {
     auto pred = [langShow, langHide](auto sentenceStorage) {
         return (sentenceStorage.get()->languages().first == langShow &&
-                sentenceStorage.get()->languages().second == langHide) or
-               (sentenceStorage.get()->languages().second == langShow &&
-                sentenceStorage.get()->languages().first == langHide);
+                sentenceStorage.get()->languages().second == langHide);
     };
 
     auto iter = std::find_if(m_sentenceStorages.begin(), m_sentenceStorages.end(), pred);
@@ -47,4 +45,14 @@ QVector<QPair<Language, Language>> LanguageStorage::languages() const
         languages.push_back(sentenceStorage.get()->languages());
     }
     return languages;
+}
+
+std::function<SentencePtr()> LanguageStorage::sentenceGetter(Language langShow, Language langHide) const
+{
+    auto sentenceStorageDetermined = sentenceStorage(langShow, langHide);
+
+    if (not sentenceStorageDetermined) return std::function<SentencePtr()>();
+
+    return std::function<SentencePtr()>(
+        [sentenceStorageDetermined]() { return sentenceStorageDetermined->randomSentence(); });
 }
