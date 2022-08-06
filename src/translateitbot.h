@@ -16,12 +16,13 @@ public:
     bool sendNewSentence(const qint64& id);
 
 private:
-    State                        m_state;
-    LanguageStorage              m_languageStorage;
-    std::function<SentencePtr()> m_newSentence;
-    bool                         m_reversedSentenceStorage = false;
-    Telegram::Api                m_api;
-    qint64                       m_offset;
+    State                            m_state;
+    LanguageStorage                  m_languageStorage;
+    std::function<SentencePtr(int&)> m_newSentence;
+    int                              m_lastSentence            = 0;
+    bool                             m_reversedSentenceStorage = false;
+    Telegram::Api                    m_api;
+    qint64                           m_offset;
 };
 
 #endif // TRANSLATEITBOT_H

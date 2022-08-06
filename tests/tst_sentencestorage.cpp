@@ -14,13 +14,14 @@ void TestSentenceStorage::initTestCase()
 
 void TestSentenceStorage::cleanupTestCase() {}
 
-void TestSentenceStorage::getRandomSentence()
+void TestSentenceStorage::getNextSentence()
 {
     for (const auto& sentenceStorage : m_sentenceStorages)
     {
+        int index = 0;
         for (int i = 0; i < 10; ++i)
         {
-            QVERIFY(sentenceStorage.randomSentence()->first != "");
+            QVERIFY(sentenceStorage.nextSentence(index)->first != "");
         }
     }
 }

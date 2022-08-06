@@ -20,10 +20,18 @@ static const QHash<QString, Language> Languages{{QStringLiteral("EN"), Language:
                                                 {QStringLiteral("RU"), Language::RU},
                                                 {QStringLiteral("FI"), Language::FI}};
 
-// TODO: using
-typedef QPair<QString, QString>                 Sentence;
-typedef QVector<Sentence>                       SentenceStorageContainer;
-typedef SentenceStorageContainer::ConstIterator SentencePtr;
+struct Sentence
+{
+    QString first;
+    QString second;
+    int     difficulty;
+};
+
+constexpr quint8 MinDifficulty = 0;
+constexpr quint8 MaxDifficulty = 4;
+
+using SentenceStorageContainer = QVector<Sentence>;
+using SentencePtr              = SentenceStorageContainer::ConstIterator;
 
 class SentenceStorage
 {
@@ -31,7 +39,9 @@ public:
     SentenceStorage(const QString& filePath);
 
     //TODO: add consistent reading
-    SentencePtr                      randomSentence() const;
+    SentencePtr                      nextSentence(int& currentSentenceIndex,
+                                                  int  difficultyMin = MinDifficulty,
+                                                  int  difficultyMax = MaxDifficulty) const;
     bool                             isOpen() const;
     State                            state() const;
     const QPair<Language, Language>& languages() const;

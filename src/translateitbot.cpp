@@ -9,11 +9,11 @@ TranslateItBot::TranslateItBot(const QString& token, const QString& languageStor
     if (not m_api.start(token)) return;
 
     //TODO: check destruction
-    m_newSentence = m_languageStorage.sentenceGetter(Language::RU, Language::EN);
+    m_newSentence = m_languageStorage.sentenceGetter(Language::RU, Language::EN, 1, 3);
 
     if (not m_newSentence)
     {
-        m_newSentence = m_languageStorage.sentenceGetter(Language::EN, Language::RU);
+        m_newSentence = m_languageStorage.sentenceGetter(Language::EN, Language::RU, 1, 3);
         if (not m_newSentence) return;
         m_reversedSentenceStorage = true;
     }
@@ -68,7 +68,7 @@ bool TranslateItBot::sendNewSentence(const qint64& id)
     inlineKeyboardMarkup->m_inline_keyboard.resize(1);
     inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButtonSkip);
 
-    SentencePtr sentence = m_newSentence();
+    SentencePtr sentence = m_newSentence(m_lastSentence);
 
     if (not m_reversedSentenceStorage)
         return m_api

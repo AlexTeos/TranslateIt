@@ -19,6 +19,5 @@ void TestLanguageStorage::testSentenceStorage()
     for (const auto& language : languages)
     {
         QVERIFY(m_languageStorage.sentenceStorage(language.first, language.second));
-        QVERIFY(m_languageStorage.sentenceStorage(language.second, language.first));
     }
 }

@@ -47,12 +47,17 @@ QVector<QPair<Language, Language>> LanguageStorage::languages() const
     return languages;
 }
 
-std::function<SentencePtr()> LanguageStorage::sentenceGetter(Language langShow, Language langHide) const
+std::function<SentencePtr(int&)> LanguageStorage::sentenceGetter(Language langShow,
+                                                                 Language langHide,
+                                                                 quint8   difficultyMin,
+                                                                 quint8   difficultyMax) const
 {
     auto sentenceStorageDetermined = sentenceStorage(langShow, langHide);
 
-    if (not sentenceStorageDetermined) return std::function<SentencePtr()>();
+    if (not sentenceStorageDetermined) return std::function<SentencePtr(int&)>();
 
-    return std::function<SentencePtr()>(
-        [sentenceStorageDetermined]() { return sentenceStorageDetermined->randomSentence(); });
+    return std::function<SentencePtr(int&)>(
+        [sentenceStorageDetermined, difficultyMin, difficultyMax](int& lastSentence) {
+            return sentenceStorageDetermined->nextSentence(lastSentence, difficultyMin, difficultyMax);
+        });
 }

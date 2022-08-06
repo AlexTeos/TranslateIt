@@ -11,7 +11,10 @@ public:
     LanguageStorage(const QString& tsvPath);
 
     QSharedPointer<SentenceStorage>    sentenceStorage(Language langShow, Language langHide) const;
-    std::function<SentencePtr()>       sentenceGetter(Language langShow, Language langHide) const;
+    std::function<SentencePtr(int&)>   sentenceGetter(Language langShow,
+                                                      Language langHide,
+                                                      quint8   difficultyMin,
+                                                      quint8   difficultyMax) const;
     bool                               load(const QString& tsvPath);
     State                              state() const;
     QVector<QPair<Language, Language>> languages() const;
