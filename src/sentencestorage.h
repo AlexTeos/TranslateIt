@@ -11,6 +11,7 @@
 
 enum class Language
 {
+    Undefined,
     EN,
     RU,
     FI
@@ -31,7 +32,7 @@ constexpr quint8 MinDifficulty = 0;
 constexpr quint8 MaxDifficulty = 4;
 
 using SentenceStorageContainer = QVector<Sentence>;
-using SentencePtr              = SentenceStorageContainer::ConstIterator;
+using SentenceCPtr             = SentenceStorageContainer::ConstIterator;
 
 class SentenceStorage
 {
@@ -39,7 +40,7 @@ public:
     SentenceStorage(const QString& filePath);
 
     //TODO: add consistent reading
-    SentencePtr                      nextSentence(int& currentSentenceIndex,
+    SentenceCPtr                     nextSentence(int& currentSentenceIndex,
                                                   int  difficultyMin = MinDifficulty,
                                                   int  difficultyMax = MaxDifficulty) const;
     bool                             isOpen() const;

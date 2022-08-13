@@ -12,7 +12,8 @@ SOURCES += \
     languagestorage.cpp \
     main.cpp \
     sentencestorage.cpp \
-    translateitbot.cpp
+    translateitbot.cpp \
+    user.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -23,7 +24,8 @@ HEADERS += \
     common.h \
     languagestorage.h \
     sentencestorage.h \
-    translateitbot.h
+    translateitbot.h \
+    user.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/TelegramAPI/src/release/ -ltelegramapi
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/TelegramAPI/src/debug/ -ltelegramapi

@@ -6,6 +6,7 @@
 #include <telegramapi.h>
 
 #include "languagestorage.h"
+#include "user.h"
 
 class TranslateItBot
 {
@@ -16,13 +17,11 @@ public:
     bool sendNewSentence(const qint64& id);
 
 private:
-    State                            m_state;
-    LanguageStorage                  m_languageStorage;
-    std::function<SentencePtr(int&)> m_newSentence;
-    int                              m_lastSentence            = 0;
-    bool                             m_reversedSentenceStorage = false;
-    Telegram::Api                    m_api;
-    qint64                           m_offset;
+    State           m_state;
+    LanguageStorage m_languageStorage;
+    Telegram::Api   m_api;
+    User            m_user;
+    qint64          m_offset;
 };
 
 #endif // TRANSLATEITBOT_H

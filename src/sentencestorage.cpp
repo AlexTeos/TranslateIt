@@ -42,7 +42,7 @@ const QPair<Language, Language>& SentenceStorage::languages() const
     return m_languages;
 }
 
-SentencePtr SentenceStorage::nextSentence(int& currentSentenceIndex, int difficultyMin, int difficultyMax) const
+SentenceCPtr SentenceStorage::nextSentence(int& currentSentenceIndex, int difficultyMin, int difficultyMax) const
 {
     // TODO: check looping
     do
