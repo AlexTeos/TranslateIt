@@ -8,21 +8,6 @@ TranslateItBot::TranslateItBot(const QString& token, const QString& languageStor
     if (m_languageStorage.state() != State::Initialized) return;
     if (not m_api.start(token)) return;
 
-    //TODO: check destruction
-    m_user.setLangShow(Language::RU);
-    m_user.setLangHide(Language::EN);
-    std::function<SentenceCPtr(int&)> sentenceGetter = m_languageStorage.sentenceGetter(
-        m_user.langShow(), m_user.langHide(), m_user.difficultyMin(), m_user.difficultyMax());
-
-    if (not sentenceGetter)
-    {
-        sentenceGetter = m_languageStorage.sentenceGetter(
-            m_user.langHide(), m_user.langShow(), m_user.difficultyMin(), m_user.difficultyMax());
-        if (not sentenceGetter) return;
-        m_user.setReversedSentence(true);
-    }
-    m_user.setSentenceGetter(sentenceGetter);
-
     m_state = State::Initialized;
 }
 
@@ -40,6 +25,9 @@ void TranslateItBot::start()
             {
                 if (update->m_callback_query)
                 {
+                    if (not m_users.contains(update->m_callback_query->m_from->m_id))
+                        addNewUser(update->m_callback_query->m_from->m_id);
+
                     if (sendNewSentence(update->m_callback_query->m_from->m_id))
                     {
                         m_api.editMessageText(update->m_callback_query->m_message->m_text.value(),
@@ -49,6 +37,9 @@ void TranslateItBot::start()
                 }
                 else if ((update->m_message) && (update->m_message->m_text == "/start"))
                 {
+                    if (not m_users.contains(update->m_callback_query->m_from->m_id))
+                        addNewUser(update->m_message->m_from->m_id);
+
                     sendNewSentence(update->m_message->m_from->m_id);
                 }
                 m_offset = update->m_update_id + 1;
@@ -73,9 +64,11 @@ bool TranslateItBot::sendNewSentence(const qint64& id)
     inlineKeyboardMarkup->m_inline_keyboard.resize(1);
     inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButtonSkip);
 
-    SentenceCPtr sentence = m_user.newSentence();
+    auto user = m_users.user(id);
+    if (user == m_users.end()) return false;
+    auto sentence = user->newSentence();
 
-    if (not m_user.reversedSentence())
+    if (not user->reversedSentence())
         return m_api
             .sendMessage(id,
                          sentence->first + "\n\n<tg-spoiler>" + sentence->second + "</tg-spoiler>",
@@ -101,4 +94,30 @@ bool TranslateItBot::sendNewSentence(const qint64& id)
                          std::nullopt,
                          inlineKeyboardMarkup)
             .has_value();
+}
+
+bool TranslateItBot::addNewUser(qint64 iserId)
+{
+    User user;
+    user.setId(iserId);
+    user.setLangShow(Language::RU);
+    user.setLangHide(Language::EN);
+    user.setDifficultyMin(2);
+    user.setDifficultyMax(3);
+    //TODO: check destruction
+    std::function<SentenceCPtr(int&)> sentenceGetter =
+        m_languageStorage.sentenceGetter(user.langShow(), user.langHide(), user.difficultyMin(), user.difficultyMax());
+
+    if (not sentenceGetter)
+    {
+        sentenceGetter = m_languageStorage.sentenceGetter(
+            user.langHide(), user.langShow(), user.difficultyMin(), user.difficultyMax());
+        if (not sentenceGetter) return false;
+        user.setReversedSentence(true);
+    }
+    user.setSentenceGetter(sentenceGetter);
+
+    m_users.insert(user);
+
+    return true;
 }

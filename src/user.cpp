@@ -62,3 +62,13 @@ void User::setReversedSentence(bool newReversedSentenceStorage)
 {
     m_reversedSentenceStorage = newReversedSentenceStorage;
 }
+
+qint64 User::id() const
+{
+    return m_id;
+}
+
+void User::setId(qint64 newId)
+{
+    m_id = newId;
+}

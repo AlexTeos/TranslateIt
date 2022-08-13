@@ -27,7 +27,11 @@ public:
     bool reversedSentence() const;
     void setReversedSentence(bool newReversedSentenceStorage);
 
+    qint64 id() const;
+    void   setId(qint64 newId);
+
 private:
+    qint64                            m_id;
     std::function<SentenceCPtr(int&)> m_newSentence;
     int                               m_lastSentence            = 0;
     bool                              m_reversedSentenceStorage = false;
