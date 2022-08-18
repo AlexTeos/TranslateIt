@@ -13,22 +13,22 @@ SentenceCPtr User::newSentence()
     return m_newSentence(m_lastSentence);
 }
 
-Language User::langShow() const
+QString User::langShow() const
 {
     return m_langShow;
 }
 
-void User::setLangShow(Language newLangShow)
+void User::setLangShow(QString newLangShow)
 {
     m_langShow = newLangShow;
 }
 
-Language User::langHide() const
+QString User::langHide() const
 {
     return m_langHide;
 }
 
-void User::setLangHide(Language newLangHide)
+void User::setLangHide(QString newLangHide)
 {
     m_langHide = newLangHide;
 }
@@ -71,4 +71,14 @@ qint64 User::id() const
 void User::setId(qint64 newId)
 {
     m_id = newId;
+}
+
+int User::lastSentence() const
+{
+    return m_lastSentence;
+}
+
+void User::setLastSentence(int newLastSentence)
+{
+    m_lastSentence = newLastSentence;
 }

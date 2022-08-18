@@ -7,7 +7,7 @@ LanguageStorage::LanguageStorage(const QString& tsvPath) : m_state(State::Uninit
     m_state = load(tsvPath) ? State::Initialized : State::Error;
 }
 
-QSharedPointer<SentenceStorage> LanguageStorage::sentenceStorage(Language langShow, Language langHide) const
+QSharedPointer<SentenceStorage> LanguageStorage::sentenceStorage(QString langShow, QString langHide) const
 {
     auto pred = [langShow, langHide](auto sentenceStorage) {
         return (sentenceStorage.get()->languages().first == langShow &&
@@ -37,9 +37,9 @@ State LanguageStorage::state() const
     return m_state;
 }
 
-QVector<QPair<Language, Language>> LanguageStorage::languages() const
+QVector<QPair<QString, QString>> LanguageStorage::languages() const
 {
-    QVector<QPair<Language, Language>> languages;
+    QVector<QPair<QString, QString>> languages;
     for (const auto& sentenceStorage : m_sentenceStorages)
     {
         languages.push_back(sentenceStorage.get()->languages());
@@ -47,10 +47,10 @@ QVector<QPair<Language, Language>> LanguageStorage::languages() const
     return languages;
 }
 
-std::function<SentenceCPtr(int&)> LanguageStorage::sentenceGetter(Language langShow,
-                                                                 Language langHide,
-                                                                 quint8   difficultyMin,
-                                                                 quint8   difficultyMax) const
+std::function<SentenceCPtr(int&)> LanguageStorage::sentenceGetter(QString langShow,
+                                                                  QString langHide,
+                                                                  quint8  difficultyMin,
+                                                                  quint8  difficultyMax) const
 {
     auto sentenceStorageDetermined = sentenceStorage(langShow, langHide);
 

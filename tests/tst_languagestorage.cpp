@@ -14,7 +14,7 @@ void TestLanguageStorage::testLanguages()
 
 void TestLanguageStorage::testSentenceStorage()
 {
-    QVector<QPair<Language, Language>> languages = m_languageStorage.languages();
+    QVector<QPair<QString, QString>> languages = m_languageStorage.languages();
 
     for (const auto& language : languages)
     {

@@ -12,11 +12,11 @@ public:
 
     SentenceCPtr newSentence();
 
-    Language langShow() const;
-    void     setLangShow(Language newLangShow);
+    QString langShow() const;
+    void    setLangShow(QString newLangShow);
 
-    Language langHide() const;
-    void     setLangHide(Language newLangHide);
+    QString langHide() const;
+    void    setLangHide(QString newLangHide);
 
     quint8 difficultyMin() const;
     void   setDifficultyMin(quint8 newDifficultyMin);
@@ -30,13 +30,16 @@ public:
     qint64 id() const;
     void   setId(qint64 newId);
 
+    int  lastSentence() const;
+    void setLastSentence(int newLastSentence);
+
 private:
     qint64                            m_id;
     std::function<SentenceCPtr(int&)> m_newSentence;
     int                               m_lastSentence            = 0;
     bool                              m_reversedSentenceStorage = false;
-    Language                          m_langShow                = Language::Undefined;
-    Language                          m_langHide                = Language::Undefined;
+    QString                           m_langShow                = "Undefined";
+    QString                           m_langHide                = "Undefined";
     quint8                            m_difficultyMin           = MinDifficulty;
     quint8                            m_difficultyMax           = MaxDifficulty;
 };

@@ -10,11 +10,9 @@ SentenceStorage::SentenceStorage(const QString& filePath) : m_state(State::Unini
 bool SentenceStorage::load(const QString& filePath)
 {
     QStringList langiagesList = QFileInfo(filePath).fileName().split(QRegExp("[-.]"));
-    if (langiagesList.size() != 3 && (Languages.find(langiagesList[0]) != Languages.cend()) &&
-        (Languages.find(langiagesList[1]) != Languages.cend()))
-        return false;
-    m_languages.first  = Languages[langiagesList[0]];
-    m_languages.second = Languages[langiagesList[1]];
+    if (langiagesList.size() != 3) return false;
+    m_languages.first  = langiagesList[0];
+    m_languages.second = langiagesList[1];
 
     QFile file(filePath);
     if (file.open(QIODevice::ReadOnly))
@@ -37,7 +35,7 @@ bool SentenceStorage::load(const QString& filePath)
 }
 
 // TODO: ref?
-const QPair<Language, Language>& SentenceStorage::languages() const
+const QPair<QString, QString>& SentenceStorage::languages() const
 {
     return m_languages;
 }

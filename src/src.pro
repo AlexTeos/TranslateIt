@@ -1,5 +1,5 @@
 QT -= gui
-QT += network core
+QT += network core sql
 
 CONFIG += c++17 console
 CONFIG -= app_bundle
@@ -14,7 +14,8 @@ SOURCES += \
     sentencestorage.cpp \
     translateitbot.cpp \
     user.cpp \
-    userstorage.cpp
+    userstorage.cpp \
+    userstoragedb.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -27,7 +28,8 @@ HEADERS += \
     sentencestorage.h \
     translateitbot.h \
     user.h \
-    userstorage.h
+    userstorage.h \
+    userstoragedb.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/TelegramAPI/src/release/ -ltelegramapi
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/TelegramAPI/src/debug/ -ltelegramapi

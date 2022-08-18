@@ -1,7 +1,8 @@
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef BOTCOMMON_H
+#define BOTCOMMON_H
 
-#endif // COMMON_H
+#include <QHash>
+#include <QString>
 
 enum State
 {
@@ -9,3 +10,5 @@ enum State
     Initialized,
     Error
 };
+
+#endif // BOTCOMMON_H

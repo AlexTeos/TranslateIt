@@ -100,8 +100,8 @@ bool TranslateItBot::addNewUser(qint64 iserId)
 {
     User user;
     user.setId(iserId);
-    user.setLangShow(Language::RU);
-    user.setLangHide(Language::EN);
+    user.setLangShow("RU");
+    user.setLangHide("EN");
     user.setDifficultyMin(2);
     user.setDifficultyMax(3);
     //TODO: check destruction

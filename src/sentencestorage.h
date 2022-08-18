@@ -9,18 +9,6 @@
 
 #include "common.h"
 
-enum class Language
-{
-    Undefined,
-    EN,
-    RU,
-    FI
-};
-
-static const QHash<QString, Language> Languages{{QStringLiteral("EN"), Language::EN},
-                                                {QStringLiteral("RU"), Language::RU},
-                                                {QStringLiteral("FI"), Language::FI}};
-
 struct Sentence
 {
     QString first;
@@ -40,20 +28,20 @@ public:
     SentenceStorage(const QString& filePath);
 
     //TODO: add consistent reading
-    SentenceCPtr                     nextSentence(int& currentSentenceIndex,
-                                                  int  difficultyMin = MinDifficulty,
-                                                  int  difficultyMax = MaxDifficulty) const;
-    bool                             isOpen() const;
-    State                            state() const;
-    const QPair<Language, Language>& languages() const;
+    SentenceCPtr                   nextSentence(int& currentSentenceIndex,
+                                                int  difficultyMin = MinDifficulty,
+                                                int  difficultyMax = MaxDifficulty) const;
+    bool                           isOpen() const;
+    State                          state() const;
+    const QPair<QString, QString>& languages() const;
 
 private:
     //TODO: do it in other thread
     bool load(const QString& filePath);
 
-    QPair<Language, Language> m_languages;
-    State                     m_state;
-    SentenceStorageContainer  m_sentences;
+    QPair<QString, QString>  m_languages;
+    State                    m_state;
+    SentenceStorageContainer m_sentences;
 };
 
 #endif // SENTENCESTORAGE_H

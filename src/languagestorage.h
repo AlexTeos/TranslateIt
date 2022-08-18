@@ -10,14 +10,14 @@ class LanguageStorage
 public:
     LanguageStorage(const QString& tsvPath);
 
-    QSharedPointer<SentenceStorage>    sentenceStorage(Language langShow, Language langHide) const;
-    std::function<SentenceCPtr(int&)>   sentenceGetter(Language langShow,
-                                                      Language langHide,
-                                                      quint8   difficultyMin,
-                                                      quint8   difficultyMax) const;
-    bool                               load(const QString& tsvPath);
-    State                              state() const;
-    QVector<QPair<Language, Language>> languages() const;
+    QSharedPointer<SentenceStorage>   sentenceStorage(QString langShow, QString langHide) const;
+    std::function<SentenceCPtr(int&)> sentenceGetter(QString langShow,
+                                                     QString langHide,
+                                                     quint8  difficultyMin,
+                                                     quint8  difficultyMax) const;
+    bool                              load(const QString& tsvPath);
+    State                             state() const;
+    QVector<QPair<QString, QString>>  languages() const;
 
 private:
     QVector<QSharedPointer<SentenceStorage>> m_sentenceStorages;
