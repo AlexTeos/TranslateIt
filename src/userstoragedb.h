@@ -21,7 +21,7 @@ private:
     bool     addUser(qint64 id) const;
     QVariant queryValue(const QSqlQuery& query, const QString& name) const;
     bool     openDataBase(const QString& path);
-    bool     createTables(const QString& path);
+    bool     createTables();
     bool     save(const qint64   id,
                   const quint8   minDifficulty,
                   const quint8   maxDifficulty,

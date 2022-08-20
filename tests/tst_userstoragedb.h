@@ -13,6 +13,7 @@ private slots:
     void userTestCase();
 
 private:
+    QVector<User>                 m_users;
     QScopedPointer<UserStorageDB> m_db;
-    const QString                 m_dbPath = "db.sqlite";
+    const QString                 m_workFolder = "./TestUserStorageDB";
 };

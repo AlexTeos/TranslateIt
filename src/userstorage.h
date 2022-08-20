@@ -1,25 +1,22 @@
 #ifndef USERSTORAGE_H
 #define USERSTORAGE_H
 
-#include <QMap>
-
-#include "user.h"
+#include "usercache.h"
+#include "userstoragedb.h"
 
 class UserStorage
 {
 public:
-    using UserContaner  = QMap<qint64, User>;
-    using Iterator      = UserContaner::Iterator;
-    using ConstIterator = UserContaner::ConstIterator;
+    using Iterator      = UserCache::Iterator;
+    using ConstIterator = UserCache::ConstIterator;
 
-    UserStorage();
-    bool          contains(qint64 userId) const;
-    Iterator      user(qint64 userId);
-    ConstIterator end() const;
-    Iterator      insert(const User& user);
+    UserStorage(const QString& path) : m_db(path){};
+
+    Iterator findOrCreate(qint64 id);
 
 private:
-    UserContaner m_users;
+    UserCache     m_cache;
+    UserStorageDB m_db;
 };
 
 #endif // USERSTORAGE_H

@@ -1,23 +1,15 @@
 #include "userstorage.h"
 
-UserStorage::UserStorage() {}
-
-bool UserStorage::contains(qint64 userId) const
+UserStorage::Iterator UserStorage::findOrCreate(qint64 id)
 {
-    return m_users.contains(userId);
-}
-
-UserStorage::Iterator UserStorage::user(qint64 userId)
-{
-    return m_users.find(userId);
-}
-
-UserStorage::ConstIterator UserStorage::end() const
-{
-    return m_users.end();
-}
-
-UserStorage::Iterator UserStorage::insert(const User& user)
-{
-    return m_users.insert(user.id(), user);
+    if (m_cache.contains(id))
+    {
+        return m_cache.user(id);
+    }
+    else
+    {
+        auto user = m_db.findOrCreate(id);
+        // TODO: check user
+        return m_cache.insert(*user);
+    }
 }

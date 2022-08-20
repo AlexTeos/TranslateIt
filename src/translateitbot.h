@@ -6,7 +6,7 @@
 #include <telegramapi.h>
 
 #include "languagestorage.h"
-#include "userstorage.h"
+#include "usercache.h"
 
 class TranslateItBot
 {
@@ -21,7 +21,7 @@ private:
     State           m_state;
     LanguageStorage m_languageStorage;
     Telegram::Api   m_api;
-    UserStorage     m_users;
+    UserCache       m_users;
     qint64          m_offset;
 };
 

@@ -7,13 +7,14 @@
 
 UserStorageDB::UserStorageDB(const QString& path)
 {
-    if (!QFile(path).exists())
+    QString dbPath = path + "/" + "TranslateItBotDB.sqlite";
+    if (!QFile(dbPath).exists())
     {
-        if (not createDataBase(path)) m_state = State::Uninitialized;
+        if (not createDataBase(dbPath)) m_state = State::Uninitialized;
     }
     else
     {
-        if (not openDataBase(path)) m_state = State::Uninitialized;
+        if (not openDataBase(dbPath)) m_state = State::Uninitialized;
     }
 
     m_state = State::Initialized;
@@ -31,7 +32,7 @@ bool UserStorageDB::createDataBase(const QString& path)
         return false;
     }
 
-    if (not createTables(path))
+    if (not createTables())
     {
         return false;
     }
@@ -39,9 +40,9 @@ bool UserStorageDB::createDataBase(const QString& path)
     return true;
 }
 
-bool UserStorageDB::createTables(const QString& path)
+bool UserStorageDB::createTables()
 {
-    QSqlQuery query(QSqlDatabase::database("MainConnection"));
+    QSqlQuery query(m_db);
 
     return query.exec("CREATE TABLE `User` ( \
                            `id`	INTEGER NOT NULL UNIQUE, \
@@ -56,7 +57,7 @@ bool UserStorageDB::createTables(const QString& path)
 
 bool UserStorageDB::openDataBase(const QString& path)
 {
-    m_db = QSqlDatabase::addDatabase("QSQLITE", "MainConnection");
+    m_db = QSqlDatabase::addDatabase("QSQLITE");
     m_db.setDatabaseName(path);
 
     return m_db.open();
@@ -76,7 +77,7 @@ QVariant UserStorageDB::queryValue(const QSqlQuery& query, const QString& name) 
 
 std::optional<User> UserStorageDB::findOrCreate(qint64 id) const
 {
-    QSqlQuery query(QSqlDatabase::database("MainConnection"));
+    QSqlQuery query(m_db);
     query.prepare("SELECT * FROM user WHERE id = :id");
     query.bindValue(":id", id);
 
@@ -103,7 +104,7 @@ std::optional<User> UserStorageDB::findOrCreate(qint64 id) const
 
 bool UserStorageDB::addUser(qint64 id) const
 {
-    QSqlQuery query(QSqlDatabase::database("MainConnection"));
+    QSqlQuery query(m_db);
     query.prepare("INSERT INTO User (id) VALUES (:id)");
     query.bindValue(":id", id);
     return query.exec();
@@ -116,7 +117,7 @@ bool UserStorageDB::save(const qint64   id,
                          const QString& langHide,
                          const int      lastSentence) const
 {
-    QSqlQuery query(QSqlDatabase::database("MainConnection"));
+    QSqlQuery query(m_db);
     query.prepare("UPDATE User SET MinDifficulty = :minDifficulty, MaxDifficulty = :maxDifficulty, LangShow = "
                   ":langShow, LangHide = :langHide, LastSentence = :lastSentence WHERE id = :id");
     query.bindValue(":minDifficulty", minDifficulty);

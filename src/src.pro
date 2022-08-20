@@ -14,6 +14,7 @@ SOURCES += \
     sentencestorage.cpp \
     translateitbot.cpp \
     user.cpp \
+    usercache.cpp \
     userstorage.cpp \
     userstoragedb.cpp
 
@@ -28,6 +29,7 @@ HEADERS += \
     sentencestorage.h \
     translateitbot.h \
     user.h \
+    usercache.h \
     userstorage.h \
     userstoragedb.h
 

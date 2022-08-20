@@ -2,22 +2,9 @@
 
 void TestUserStorageDB::initTestCase()
 {
-    QFile(m_dbPath).remove();
-    m_db.reset(new UserStorageDB(m_dbPath));
+    QVERIFY(QDir().mkdir(m_workFolder));
+    m_db.reset(new UserStorageDB(m_workFolder));
     QVERIFY(m_db->state() == State::Initialized);
-}
-
-void TestUserStorageDB::cleanupTestCase()
-{
-    m_db.reset();
-    QFile(m_dbPath).remove();
-}
-
-void TestUserStorageDB::userTestCase()
-{
-    m_db->findOrCreate(1);
-    m_db->findOrCreate(2);
-    m_db->findOrCreate(3462);
 
     User user;
     user.setId(1);
@@ -26,7 +13,7 @@ void TestUserStorageDB::userTestCase()
     user.setLangShow("RU");
     user.setLangHide("FI");
     user.setLastSentence(2);
-    QVERIFY(m_db->save(user));
+    m_users.push_back(user);
 
     user.setId(2);
     user.setDifficultyMin(0);
@@ -34,7 +21,7 @@ void TestUserStorageDB::userTestCase()
     user.setLangShow("EN");
     user.setLangHide("FI");
     user.setLastSentence(0);
-    QVERIFY(m_db->save(user));
+    m_users.push_back(user);
 
     user.setId(3462);
     user.setDifficultyMin(3);
@@ -42,33 +29,29 @@ void TestUserStorageDB::userTestCase()
     user.setLangShow("RU");
     user.setLangHide("EN");
     user.setLastSentence(234);
-    QVERIFY(m_db->save(user));
+    m_users.push_back(user);
+}
 
+void TestUserStorageDB::cleanupTestCase()
+{
+    m_db.reset();
+    QSqlDatabase::removeDatabase(QLatin1String(QSqlDatabase::defaultConnection));
+    QVERIFY(QDir(m_workFolder).removeRecursively());
+}
+
+void TestUserStorageDB::userTestCase()
+{
+    for (int i = 0; i < m_users.count(); ++i)
     {
-        std::optional<User> user = m_db->findOrCreate(1);
+        QVERIFY(m_db->findOrCreate(m_users[i].id()).has_value());
+        QVERIFY(m_db->save(m_users[i]));
+
+        auto user = m_db->findOrCreate(1);
         QVERIFY(user.has_value());
         QVERIFY(user->difficultyMin() == 1);
         QVERIFY(user->difficultyMax() == 3);
         QVERIFY(user->langShow() == "RU");
         QVERIFY(user->langHide() == "FI");
         QVERIFY(user->lastSentence() == 2);
-    }
-    {
-        std::optional<User> user = m_db->findOrCreate(2);
-        QVERIFY(user.has_value());
-        QVERIFY(user->difficultyMin() == 0);
-        QVERIFY(user->difficultyMax() == 4);
-        QVERIFY(user->langShow() == "EN");
-        QVERIFY(user->langHide() == "FI");
-        QVERIFY(user->lastSentence() == 0);
-    }
-    {
-        std::optional<User> user = m_db->findOrCreate(3462);
-        QVERIFY(user.has_value());
-        QVERIFY(user->difficultyMin() == 3);
-        QVERIFY(user->difficultyMax() == 4);
-        QVERIFY(user->langShow() == "RU");
-        QVERIFY(user->langHide() == "EN");
-        QVERIFY(user->lastSentence() == 234);
     }
 }
