@@ -7,8 +7,12 @@ void User::setSentenceGetter(const std::function<SentenceCPtr(int&)>& newNewSent
 
 SentenceCPtr User::newSentence()
 {
-    m_newSentence(m_lastSentence);
     return m_newSentence(m_lastSentence);
+}
+
+bool User::isSentenceGetterSet()
+{
+    return bool(m_newSentence);
 }
 
 QString User::langShow() const

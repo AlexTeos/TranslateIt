@@ -12,3 +12,15 @@ User::SPtr UserStorage::findOrCreate(qint64 id)
     }
     return m_cache.user(id);
 }
+
+bool UserStorage::backup()
+{
+    //TODO: do a real backup
+    bool res = true;
+    for (const auto& user : m_cache.flush())
+    {
+        res &= m_db.save(user);
+    }
+
+    return res;
+}

@@ -8,6 +8,7 @@
 
 #include "user.h"
 
+// TODO: make users expirable by time
 class UserCache
 {
 public:

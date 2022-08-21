@@ -13,6 +13,7 @@ public:
     void setSentenceGetter(const std::function<SentenceCPtr(int&)>& newNewSentence);
 
     SentenceCPtr newSentence();
+    bool         isSentenceGetterSet();
 
     QString langShow() const;
     void    setLangShow(QString newLangShow);

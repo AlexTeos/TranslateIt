@@ -1,6 +1,7 @@
 #ifndef TRANSLATEITBOT_H
 #define TRANSLATEITBOT_H
 
+#include <QElapsedTimer>
 #include <QString>
 
 #include <telegramapi.h>
@@ -22,6 +23,8 @@ private:
     Telegram::Api   m_api;
     UserStorage     m_users;
     qint64          m_offset;
+    QElapsedTimer   m_backupTimer;
+    const qint64    m_backupInterval = 60 * 60 * 1000;
 };
 
 #endif // TRANSLATEITBOT_H

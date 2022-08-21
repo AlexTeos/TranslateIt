@@ -3,12 +3,13 @@
 #include <QThread>
 
 TranslateItBot::TranslateItBot(const QString& token, const QString& languageStoragePath)
-    : m_state(Error), m_users("./"), m_languageStorage(languageStoragePath)
+    : m_state(Error), m_languageStorage(languageStoragePath), m_users("./")
 {
     if (m_languageStorage.state() != State::Initialized) return;
     if (not m_api.start(token)) return;
 
     m_state = State::Initialized;
+    m_backupTimer.start();
 }
 
 void TranslateItBot::start()
@@ -41,7 +42,14 @@ void TranslateItBot::start()
         }
         else
         {
+            // TODO: adjust according to users activity
             QThread::msleep(100);
+
+            if (m_backupTimer.hasExpired(m_backupInterval))
+            {
+                m_users.backup();
+                m_backupTimer.restart();
+            }
         }
     }
 }
@@ -58,7 +66,22 @@ bool TranslateItBot::sendNewSentence(const qint64& id)
     inlineKeyboardMarkup->m_inline_keyboard.resize(1);
     inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButtonSkip);
 
-    auto user     = m_users.findOrCreate(id);
+    auto user = m_users.findOrCreate(id);
+    // TODO: check it in a more suitable place
+    if (not user->isSentenceGetterSet())
+    {
+        std::function<SentenceCPtr(int&)> sentenceGetter = m_languageStorage.sentenceGetter(
+            user->langShow(), user->langHide(), user->difficultyMin(), user->difficultyMax());
+
+        if (not sentenceGetter)
+        {
+            sentenceGetter = m_languageStorage.sentenceGetter(
+                user->langHide(), user->langShow(), user->difficultyMin(), user->difficultyMax());
+            if (not sentenceGetter) return false;
+            user->setReversedSentence(true);
+        }
+        user->setSentenceGetter(sentenceGetter);
+    }
     auto sentence = user->newSentence();
 
     if (not user->reversedSentence())
