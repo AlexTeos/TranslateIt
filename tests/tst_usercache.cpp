@@ -60,3 +60,45 @@ void TestUserCache::userTestCase()
         QVERIFY(user->lastSentence() == m_users[i].lastSentence());
     }
 }
+
+void TestUserCache::flushTestCase()
+{
+    QVERIFY(m_cache.flush().size() == m_users.size());
+}
+
+void TestUserCache::expiredTestCase()
+{
+    m_cache.flush();
+    int i = 0;
+    for (; i < m_cacheSize; ++i)
+    {
+        auto user = User::SPtr(new User(i));
+        QVERIFY(not m_cache.insert(user));
+    }
+
+    auto user = User::SPtr(new User(i++));
+    QVERIFY(m_cache.insert(user));
+    QVERIFY(m_cache.getExpired()->id() == 0);
+
+    QVERIFY(m_cache.insert(User::SPtr(new User(i++))));
+    QVERIFY(m_cache.insert(User::SPtr(new User(i++))));
+    QVERIFY(m_cache.insert(User::SPtr(new User(i++))));
+
+    QVERIFY(m_cache.getExpired()->id() == 1);
+    QVERIFY(m_cache.getExpired()->id() == 2);
+    QVERIFY(m_cache.getExpired()->id() == 3);
+
+    QVERIFY(m_cache.user(4));
+    QVERIFY(m_cache.user(6));
+    QVERIFY(m_cache.user(8));
+
+    QVERIFY(m_cache.insert(User::SPtr(new User(i++))));
+    QVERIFY(m_cache.insert(User::SPtr(new User(i++))));
+    QVERIFY(m_cache.insert(User::SPtr(new User(i++))));
+
+    QVERIFY(m_cache.getExpired()->id() == 5);
+    QVERIFY(m_cache.getExpired()->id() == 7);
+    QVERIFY(m_cache.getExpired()->id() == 9);
+
+    QVERIFY(not m_cache.getExpired());
+}

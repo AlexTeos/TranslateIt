@@ -128,8 +128,12 @@ bool UserStorageDB::save(const qint64   id,
     return query.exec();
 }
 
-bool UserStorageDB::save(const User& user) const
+bool UserStorageDB::save(User::SPtr user) const
 {
-    return save(
-        user.id(), user.difficultyMin(), user.difficultyMax(), user.langShow(), user.langHide(), user.lastSentence());
+    return save(user->id(),
+                user->difficultyMin(),
+                user->difficultyMax(),
+                user->langShow(),
+                user->langHide(),
+                user->lastSentence());
 }

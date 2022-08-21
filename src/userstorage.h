@@ -7,7 +7,7 @@
 class UserStorage
 {
 public:
-    UserStorage(const QString& path) : m_db(path){};
+    UserStorage(const QString& path) : m_cache(20), m_db(path){};
 
     User::SPtr findOrCreate(qint64 id);
 

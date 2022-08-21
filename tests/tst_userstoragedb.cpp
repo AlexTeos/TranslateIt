@@ -43,14 +43,15 @@ void TestUserStorageDB::userTestCase()
     for (int i = 0; i < m_users.count(); ++i)
     {
         QVERIFY(m_db->findOrCreate(m_users[i].id()));
-        QVERIFY(m_db->save(m_users[i]));
+        auto user = User::SPtr(new User(m_users[i]));
+        QVERIFY(m_db->save(user));
 
-        auto user = m_db->findOrCreate(1);
+        user = m_db->findOrCreate(m_users[i].id());
         QVERIFY(user);
-        QVERIFY(user->difficultyMin() == 1);
-        QVERIFY(user->difficultyMax() == 3);
-        QVERIFY(user->langShow() == "RU");
-        QVERIFY(user->langHide() == "FI");
-        QVERIFY(user->lastSentence() == 2);
+        QVERIFY(user->difficultyMin() == m_users[i].difficultyMin());
+        QVERIFY(user->difficultyMax() == m_users[i].difficultyMax());
+        QVERIFY(user->langShow() == m_users[i].langShow());
+        QVERIFY(user->langHide() == m_users[i].langHide());
+        QVERIFY(user->lastSentence() == m_users[i].lastSentence());
     }
 }

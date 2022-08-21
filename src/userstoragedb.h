@@ -14,7 +14,7 @@ public:
 
     State      state() const;
     User::SPtr findOrCreate(qint64 id) const;
-    bool       save(const User& user) const;
+    bool       save(User::SPtr) const;
 
 private:
     bool     createDataBase(const QString& path);
