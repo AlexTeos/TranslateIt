@@ -7,12 +7,9 @@
 class UserStorage
 {
 public:
-    using Iterator      = UserCache::Iterator;
-    using ConstIterator = UserCache::ConstIterator;
-
     UserStorage(const QString& path) : m_db(path){};
 
-    Iterator findOrCreate(qint64 id);
+    User::SPtr findOrCreate(qint64 id);
 
 private:
     UserCache     m_cache;

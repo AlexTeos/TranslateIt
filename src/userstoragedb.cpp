@@ -75,23 +75,22 @@ QVariant UserStorageDB::queryValue(const QSqlQuery& query, const QString& name) 
     return QVariant(0);
 }
 
-std::optional<User> UserStorageDB::findOrCreate(qint64 id) const
+User::SPtr UserStorageDB::findOrCreate(qint64 id) const
 {
     QSqlQuery query(m_db);
     query.prepare("SELECT * FROM user WHERE id = :id");
     query.bindValue(":id", id);
 
-    User user;
-    user.setId(id);
+    User::SPtr user = User::SPtr(new User(id));
     if (query.exec())
     {
         if (query.next())
         {
-            user.setDifficultyMin(queryValue(query, "MinDifficulty").toInt());
-            user.setDifficultyMax(queryValue(query, "MaxDifficulty").toInt());
-            user.setLangShow(queryValue(query, "LangShow").toString());
-            user.setLangHide(queryValue(query, "LangHide").toString());
-            user.setLastSentence(queryValue(query, "LastSentence").toInt());
+            user->setDifficultyMin(queryValue(query, "MinDifficulty").toInt());
+            user->setDifficultyMax(queryValue(query, "MaxDifficulty").toInt());
+            user->setLangShow(queryValue(query, "LangShow").toString());
+            user->setLangHide(queryValue(query, "LangHide").toString());
+            user->setLastSentence(queryValue(query, "LastSentence").toInt());
         }
         else
         {

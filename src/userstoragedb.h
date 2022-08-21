@@ -12,9 +12,9 @@ public:
     UserStorageDB(const QString& path);
     ~UserStorageDB();
 
-    State               state() const;
-    std::optional<User> findOrCreate(qint64 id) const;
-    bool                save(const User& user) const;
+    State      state() const;
+    User::SPtr findOrCreate(qint64 id) const;
+    bool       save(const User& user) const;
 
 private:
     bool     createDataBase(const QString& path);

@@ -5,8 +5,7 @@ void TestUserStorage::initTestCase()
     QVERIFY(QDir().mkdir(m_workFolder));
     m_userStorage.reset(new UserStorage(m_workFolder));
 
-    User user;
-    user.setId(1);
+    User user(1);
     user.setDifficultyMin(1);
     user.setDifficultyMax(3);
     user.setLangShow("RU");

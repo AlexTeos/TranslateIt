@@ -6,8 +6,7 @@ void TestUserStorageDB::initTestCase()
     m_db.reset(new UserStorageDB(m_workFolder));
     QVERIFY(m_db->state() == State::Initialized);
 
-    User user;
-    user.setId(1);
+    User user(1);
     user.setDifficultyMin(1);
     user.setDifficultyMax(3);
     user.setLangShow("RU");
@@ -43,11 +42,11 @@ void TestUserStorageDB::userTestCase()
 {
     for (int i = 0; i < m_users.count(); ++i)
     {
-        QVERIFY(m_db->findOrCreate(m_users[i].id()).has_value());
+        QVERIFY(m_db->findOrCreate(m_users[i].id()));
         QVERIFY(m_db->save(m_users[i]));
 
         auto user = m_db->findOrCreate(1);
-        QVERIFY(user.has_value());
+        QVERIFY(user);
         QVERIFY(user->difficultyMin() == 1);
         QVERIFY(user->difficultyMax() == 3);
         QVERIFY(user->langShow() == "RU");

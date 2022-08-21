@@ -6,7 +6,7 @@
 #include <telegramapi.h>
 
 #include "languagestorage.h"
-#include "usercache.h"
+#include "userstorage.h"
 
 class TranslateItBot
 {
@@ -15,13 +15,12 @@ public:
 
     void start();
     bool sendNewSentence(const qint64& id);
-    bool addNewUser(qint64 iserId);
 
 private:
     State           m_state;
     LanguageStorage m_languageStorage;
     Telegram::Api   m_api;
-    UserCache       m_users;
+    UserStorage     m_users;
     qint64          m_offset;
 };
 

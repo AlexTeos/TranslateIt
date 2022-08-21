@@ -6,7 +6,9 @@
 class User
 {
 public:
-    User();
+    using SPtr = QSharedPointer<User>;
+
+    User(qint64 id) : m_id(id){};
 
     void setSentenceGetter(const std::function<SentenceCPtr(int&)>& newNewSentence);
 

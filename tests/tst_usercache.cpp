@@ -2,8 +2,7 @@
 
 void TestUserCache::initTestCase()
 {
-    User user;
-    user.setId(1);
+    User user(1);
     user.setDifficultyMin(1);
     user.setDifficultyMax(3);
     user.setLangShow("RU");
@@ -34,7 +33,8 @@ void TestUserCache::insertTestCase()
 {
     for (int i = 0; i < m_users.count(); ++i)
     {
-        QVERIFY(m_cache.insert(m_users[i]) != m_cache.end());
+        auto user = User::SPtr(new User(m_users[i]));
+        m_cache.insert(user);
     }
 }
 
@@ -53,7 +53,6 @@ void TestUserCache::userTestCase()
     for (int i = 0; i < m_users.count(); ++i)
     {
         auto user = m_cache.user(m_users[i].id());
-        QVERIFY(user != m_cache.end());
         QVERIFY(user->difficultyMin() == m_users[i].difficultyMin());
         QVERIFY(user->difficultyMax() == m_users[i].difficultyMax());
         QVERIFY(user->langShow() == m_users[i].langShow());

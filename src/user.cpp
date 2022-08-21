@@ -1,7 +1,5 @@
 #include "user.h"
 
-User::User() {}
-
 void User::setSentenceGetter(const std::function<SentenceCPtr(int&)>& newNewSentence)
 {
     m_newSentence = newNewSentence;
