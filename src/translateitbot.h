@@ -4,9 +4,8 @@
 #include <QElapsedTimer>
 #include <QString>
 
-#include <telegramapi.h>
-
 #include "languagestorage.h"
+#include "translateitapi.h"
 #include "userstorage.h"
 
 class TranslateItBot
@@ -14,13 +13,17 @@ class TranslateItBot
 public:
     TranslateItBot(const QString& token, const QString& tmx);
 
-    void start();
-    bool sendNewSentence(const qint64& id);
+    void checkUpdates();
+    bool processCallBack(Telegram::CallbackQuery::Ptr callback);
+    bool processMessage(Telegram::Message::Ptr message);
+    bool processCmd(User::SPtr user, Telegram::Message::Ptr message, QString cmd, QString arg = "");
+    bool checkAndSetUserSentenceGetter(User::SPtr user);
+    bool checkIsUserConfigured(User::SPtr user);
 
 private:
     State           m_state;
     LanguageStorage m_languageStorage;
-    Telegram::Api   m_api;
+    TranslateItApi  m_api;
     UserStorage     m_users;
     qint64          m_offset;
     QElapsedTimer   m_backupTimer;

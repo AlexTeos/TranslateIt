@@ -27,7 +27,6 @@ class SentenceStorage
 public:
     SentenceStorage(const QString& filePath);
 
-    //TODO: add consistent reading
     SentenceCPtr                   nextSentence(int& currentSentenceIndex,
                                                 int  difficultyMin = MinDifficulty,
                                                 int  difficultyMax = MaxDifficulty) const;

@@ -12,6 +12,7 @@ SOURCES += \
     languagestorage.cpp \
     main.cpp \
     sentencestorage.cpp \
+    translateitapi.cpp \
     translateitbot.cpp \
     user.cpp \
     usercache.cpp \
@@ -27,6 +28,7 @@ HEADERS += \
     common.h \
     languagestorage.h \
     sentencestorage.h \
+    translateitapi.h \
     translateitbot.h \
     user.h \
     usercache.h \

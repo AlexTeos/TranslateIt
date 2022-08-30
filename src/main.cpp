@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
     if (argc > 2) settings.setValue("TSVPath", argv[2]);
 
     TranslateItBot bot(settings.value("TelegramBotToken").toString(), settings.value("tsvPath").toString());
-    bot.start();
+    bot.checkUpdates();
 
     return 0;
 }

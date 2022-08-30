@@ -8,11 +8,16 @@ TranslateItBot::TranslateItBot(const QString& token, const QString& languageStor
     if (m_languageStorage.state() != State::Initialized) return;
     if (not m_api.start(token)) return;
 
+    // TODO: add hidden command (stat, shutdown, ...)
+    m_api.configureMenuCommands({{"start", "Get new sentence"},
+                                 {"settings", "Changle language or difficulty"},
+                                 {"help", "Inctructions & contacts"}});
+
     m_state = State::Initialized;
     m_backupTimer.start();
 }
 
-void TranslateItBot::start()
+void TranslateItBot::checkUpdates()
 {
     if (m_state != State::Initialized) return;
 
@@ -26,16 +31,11 @@ void TranslateItBot::start()
             {
                 if (update->m_callback_query)
                 {
-                    if (sendNewSentence(update->m_callback_query->m_from->m_id))
-                    {
-                        m_api.editMessageText(update->m_callback_query->m_message->m_text.value(),
-                                              update->m_callback_query->m_message->m_chat->m_id,
-                                              update->m_callback_query->m_message->m_message_id);
-                    }
+                    processCallBack(update->m_callback_query);
                 }
-                else if ((update->m_message) && (update->m_message->m_text == "/start"))
+                else if (update->m_message)
                 {
-                    sendNewSentence(update->m_message->m_from->m_id);
+                    processMessage(update->m_message);
                 }
                 m_offset = update->m_update_id + 1;
             }
@@ -54,25 +54,122 @@ void TranslateItBot::start()
     }
 }
 
-bool TranslateItBot::sendNewSentence(const qint64& id)
+bool TranslateItBot::processMessage(Telegram::Message::Ptr message)
 {
-    Telegram::InlineKeyboardButton::Ptr inlineKeyboardButtonSkip;
-    inlineKeyboardButtonSkip                  = Telegram::InlineKeyboardButton::Ptr::create();
-    inlineKeyboardButtonSkip->m_text          = "New Sentence";
-    inlineKeyboardButtonSkip->m_callback_data = "New";
+    auto user = m_users.findOrCreate(message->m_from->m_id);
+    if (message->m_text == "/help")
+        return processCmd(user, nullptr, "Help");
+    else if (message->m_text == "/start")
+        return processCmd(user, message, "GetNewSentence");
+    else if (message->m_text == "/settings")
+        return processCmd(user, nullptr, "SetupUser");
 
-    Telegram::InlineKeyboardMarkup::Ptr inlineKeyboardMarkup;
-    inlineKeyboardMarkup = Telegram::InlineKeyboardMarkup::Ptr::create();
-    inlineKeyboardMarkup->m_inline_keyboard.resize(1);
-    inlineKeyboardMarkup->m_inline_keyboard[0].push_back(inlineKeyboardButtonSkip);
+    return false;
+}
 
-    auto user = m_users.findOrCreate(id);
-    // TODO: check it in a more suitable place
-    if (not user->isSentenceGetterSet())
+bool TranslateItBot::processCallBack(Telegram::CallbackQuery::Ptr callback)
+{
+    QString     cmd = "", arg = "";
+    QStringList callbackData = callback->m_data->split(":");
+    cmd                      = callbackData[0];
+    if (callbackData.size() > 1) arg = callbackData[1];
+    auto user = m_users.findOrCreate(callback->m_from->m_id);
+
+    return processCmd(user, callback->m_message, cmd, arg);
+}
+
+bool TranslateItBot::processCmd(User::SPtr user, Telegram::Message::Ptr message, QString cmd, QString arg)
+{
+    if (cmd == "GetNewSentence")
+    {
+        if (not checkAndSetUserSentenceGetter(user))
+        {
+            m_api.sendMessage(user->id(), "Your settings are incorrect. Please configure it again.").has_value();
+            return processCmd(user, nullptr, "SetupUser");
+        }
+
+        if (m_api.sendNewSentence(user))
+        {
+            return message ? m_api
+                                 .editMessageText(message->m_text.value(),
+                                                  std::optional(message->m_chat->m_id),
+                                                  message->m_message_id)
+                                 .has_value()
+                           : false;
+        }
+    }
+    else if (cmd == "SetupUser")
+    {
+        // TODO: show current settings?
+        QVector<QPair<QString, QString>> languagePairs = m_languageStorage.languages();
+        QSet<QString>                    languages;
+        for (const auto& pair : languagePairs)
+        {
+            languages.insert(pair.first);
+            languages.insert(pair.second);
+        }
+
+        return m_api.sendAvailableLanguages(user, languages);
+    }
+    else if (cmd == "SetShowLanguage")
+    {
+        user->setLangShow(arg);
+
+        QVector<QPair<QString, QString>> languagePairs = m_languageStorage.languages();
+        QSet<QString>                    languages;
+        for (const auto& pair : languagePairs)
+        {
+            if (pair.first == arg) languages.insert(pair.second);
+            if (pair.second == arg) languages.insert(pair.first);
+        }
+
+        return m_api.editAvailableLanguages(message, languages);
+    }
+    else if (cmd == "SetHideLanguage")
+    {
+        user->setLangHide(arg);
+
+        return m_api.editDifficulty(message);
+    }
+    else if (cmd == "SetMinDifficulty")
+    {
+        user->setDifficultyMin(arg.toInt());
+
+        if (user->difficultyMin() != MaxDifficulty)
+            return m_api.editDifficulty(message, true, user->difficultyMin());
+        else
+        {
+            user->setDifficultyMax(MaxDifficulty);
+            user->setSentenceGetter(nullptr);
+            return m_api.confirmSettings(message);
+        }
+    }
+    else if (cmd == "SetMaxDifficulty")
+    {
+        user->setDifficultyMax(arg.toInt() - 1);
+        user->setSentenceGetter(nullptr);
+        return m_api.confirmSettings(message);
+        // TODO: save sentence id and reset it
+    }
+    else if (cmd == "Help")
+    {
+        // TODO: improve help page
+        return m_api.sendMessage(user->id(), "For any questions please text @AlexTeos").has_value();
+    }
+
+    return false;
+}
+
+bool TranslateItBot::checkAndSetUserSentenceGetter(User::SPtr user)
+{
+    if (user->isSentenceGetterSet()) return true;
+
+    if (checkIsUserConfigured(user))
     {
         std::function<SentenceCPtr(int&)> sentenceGetter = m_languageStorage.sentenceGetter(
             user->langShow(), user->langHide(), user->difficultyMin(), user->difficultyMax());
 
+        user->setReversedSentence(false);
         if (not sentenceGetter)
         {
             sentenceGetter = m_languageStorage.sentenceGetter(
@@ -81,33 +178,15 @@ bool TranslateItBot::sendNewSentence(const qint64& id)
             user->setReversedSentence(true);
         }
         user->setSentenceGetter(sentenceGetter);
+        return true;
     }
-    auto sentence = user->newSentence();
 
-    if (not user->reversedSentence())
-        return m_api
-            .sendMessage(id,
-                         sentence->first + "\n\n<tg-spoiler>" + sentence->second + "</tg-spoiler>",
-                         "HTML",
-                         std::nullopt,
-                         std::nullopt,
-                         std::nullopt,
-                         std::nullopt,
-                         std::nullopt,
-                         std::nullopt,
-                         inlineKeyboardMarkup)
-            .has_value();
-    else
-        return m_api
-            .sendMessage(id,
-                         sentence->second + "\n\n<tg-spoiler>" + sentence->first + "</tg-spoiler>",
-                         "HTML",
-                         std::nullopt,
-                         std::nullopt,
-                         std::nullopt,
-                         std::nullopt,
-                         std::nullopt,
-                         std::nullopt,
-                         inlineKeyboardMarkup)
-            .has_value();
+    return false;
+}
+
+bool TranslateItBot::checkIsUserConfigured(User::SPtr user)
+{
+    // TODO: check if languages exist
+    return user->langHide() != "Undefined" and user->langShow() != "Undefined" and
+           user->langShow() != user->langHide() and user->difficultyMax() >= user->difficultyMin();
 }
