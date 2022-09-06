@@ -82,13 +82,7 @@ bool TranslateItBot::processCmd(User::SPtr user, Telegram::Message::Ptr message,
 {
     if (cmd == "GetNewSentence")
     {
-        if (not checkAndSetUserSentenceGetter(user))
-        {
-            m_api.sendMessage(user->id(), "Your settings are incorrect. Please configure it again.").has_value();
-            return processCmd(user, nullptr, "SetupUser");
-        }
-
-        if (m_api.sendNewSentence(user))
+        if (checkAndSetUserSentenceGetter(user) and m_api.sendNewSentence(user))
         {
             return message ? m_api
                                  .editMessageText(message->m_text.value(),
@@ -96,6 +90,14 @@ bool TranslateItBot::processCmd(User::SPtr user, Telegram::Message::Ptr message,
                                                   message->m_message_id)
                                  .has_value()
                            : false;
+        }
+        else
+        {
+            if (message)
+                m_api.editMessageText(
+                    message->m_text.value(), std::optional(message->m_chat->m_id), message->m_message_id);
+            m_api.sendMessage(user->id(), "Your settings are incorrect. Please configure it again.").has_value();
+            return processCmd(user, nullptr, "SetupUser");
         }
     }
     else if (cmd == "SetupUser")
@@ -166,7 +168,7 @@ bool TranslateItBot::checkAndSetUserSentenceGetter(User::SPtr user)
 
     if (checkIsUserConfigured(user))
     {
-        std::function<SentenceCPtr(int&)> sentenceGetter = m_languageStorage.sentenceGetter(
+        std::function<std::optional<SentenceCPtr>(int&)> sentenceGetter = m_languageStorage.sentenceGetter(
             user->langShow(), user->langHide(), user->difficultyMin(), user->difficultyMax());
 
         user->setReversedSentence(false);

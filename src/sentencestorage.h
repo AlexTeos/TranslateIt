@@ -27,7 +27,7 @@ class SentenceStorage
 public:
     SentenceStorage(const QString& filePath);
 
-    SentenceCPtr                   nextSentence(int& currentSentenceIndex,
+    std::optional<SentenceCPtr>    nextSentence(int& currentSentenceIndex,
                                                 int  difficultyMin = MinDifficulty,
                                                 int  difficultyMax = MaxDifficulty) const;
     bool                           isOpen() const;
@@ -38,6 +38,7 @@ private:
     //TODO: do it in other thread
     bool load(const QString& filePath);
 
+    // TODO: store max/min difficulty for specific language
     QPair<QString, QString>  m_languages;
     State                    m_state;
     SentenceStorageContainer m_sentences;

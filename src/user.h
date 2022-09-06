@@ -10,10 +10,10 @@ public:
 
     User(qint64 id) : m_id(id){};
 
-    void setSentenceGetter(const std::function<SentenceCPtr(int&)>& newNewSentence);
+    void setSentenceGetter(const std::function<std::optional<SentenceCPtr>(int&)>& newNewSentence);
 
-    SentenceCPtr newSentence();
-    bool         isSentenceGetterSet();
+    std::optional<SentenceCPtr> newSentence();
+    bool                        isSentenceGetterSet();
 
     QString langShow() const;
     void    setLangShow(QString newLangShow);
@@ -37,14 +37,14 @@ public:
     void setLastSentence(int newLastSentence);
 
 private:
-    qint64                            m_id;
-    std::function<SentenceCPtr(int&)> m_newSentence;
-    int                               m_lastSentence            = 0;
-    bool                              m_reversedSentenceStorage = false;
-    QString                           m_langShow                = "Undefined";
-    QString                           m_langHide                = "Undefined";
-    quint8                            m_difficultyMin           = MinDifficulty;
-    quint8                            m_difficultyMax           = MaxDifficulty;
+    qint64                                           m_id;
+    std::function<std::optional<SentenceCPtr>(int&)> m_newSentence;
+    int                                              m_lastSentence            = 0;
+    bool                                             m_reversedSentenceStorage = false;
+    QString                                          m_langShow                = "Undefined";
+    QString                                          m_langHide                = "Undefined";
+    quint8                                           m_difficultyMin           = MinDifficulty;
+    quint8                                           m_difficultyMax           = MaxDifficulty;
 };
 
 #endif // BOTUSER_H

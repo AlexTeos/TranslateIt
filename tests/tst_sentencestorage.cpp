@@ -21,7 +21,7 @@ void TestSentenceStorage::getNextSentence()
         int index = 0;
         for (int i = 0; i < 10; ++i)
         {
-            QVERIFY(sentenceStorage.nextSentence(index)->first != "");
+            QVERIFY(sentenceStorage.nextSentence(index).value()->first != "");
         }
     }
 }

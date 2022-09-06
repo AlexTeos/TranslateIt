@@ -143,9 +143,11 @@ bool TranslateItApi::sendNewSentence(User::SPtr user)
     if (not user->isSentenceGetterSet()) return false;
     auto sentence = user->newSentence();
 
+    if (not sentence) return false;
+
     if (not user->reversedSentence())
         return sendMessage(user->id(),
-                           sentence->first + "\n\n<tg-spoiler>" + sentence->second + "</tg-spoiler>",
+                           sentence.value()->first + "\n\n<tg-spoiler>" + sentence.value()->second + "</tg-spoiler>",
                            "HTML",
                            std::nullopt,
                            std::nullopt,
@@ -157,7 +159,7 @@ bool TranslateItApi::sendNewSentence(User::SPtr user)
             .has_value();
     else
         return sendMessage(user->id(),
-                           sentence->second + "\n\n<tg-spoiler>" + sentence->first + "</tg-spoiler>",
+                           sentence.value()->second + "\n\n<tg-spoiler>" + sentence.value()->first + "</tg-spoiler>",
                            "HTML",
                            std::nullopt,
                            std::nullopt,

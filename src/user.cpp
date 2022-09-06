@@ -1,11 +1,11 @@
 #include "user.h"
 
-void User::setSentenceGetter(const std::function<SentenceCPtr(int&)>& newNewSentence)
+void User::setSentenceGetter(const std::function<std::optional<SentenceCPtr>(int&)>& newNewSentence)
 {
     m_newSentence = newNewSentence;
 }
 
-SentenceCPtr User::newSentence()
+std::optional<SentenceCPtr> User::newSentence()
 {
     return m_newSentence(m_lastSentence);
 }

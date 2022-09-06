@@ -40,13 +40,20 @@ const QPair<QString, QString>& SentenceStorage::languages() const
     return m_languages;
 }
 
-SentenceCPtr SentenceStorage::nextSentence(int& currentSentenceIndex, int difficultyMin, int difficultyMax) const
+std::optional<SentenceCPtr> SentenceStorage::nextSentence(int& currentSentenceIndex,
+                                                          int  difficultyMin,
+                                                          int  difficultyMax) const
 {
-    // TODO: check looping
+    bool loopStarted = false;
     do
     {
         currentSentenceIndex++;
-        if (currentSentenceIndex >= m_sentences.size()) currentSentenceIndex = 0;
+        if (currentSentenceIndex >= m_sentences.size())
+        {
+            currentSentenceIndex = 0;
+            if (loopStarted) return std::nullopt;
+            loopStarted = true;
+        }
     } while (m_sentences.at(currentSentenceIndex).difficulty < difficultyMin ||
              m_sentences.at(currentSentenceIndex).difficulty > difficultyMax);
 
