@@ -20,11 +20,18 @@ bool SentenceStorage::load(const QString& filePath)
         while (not file.atEnd())
         {
             QList<QByteArray> query = file.readLine().split(0x09);
-            if (query[1].contains(". ")) continue; // skip too complicated sentences
-            // TODO: filter same sentences
             if (query.size() == 4)
             {
-                m_sentences.push_back(Sentence{query[1], query[3], qMin<int>(query[1].count(" ") / 5, MaxDifficulty)});
+                if (query[1].contains(". ")) continue; // skip too complicated sentences
+
+                QString sentence    = QString(query[1]).remove(QRegExp("[\\n\\r]"));
+                QString translation = QString(query[3]).remove(QRegExp("[\\n\\r]"));
+                if (m_sentences.size() > 0 and
+                    ((sentence == m_sentences.back().first) or translation == m_sentences.back().second))
+                    continue; // skip same sentences
+
+                m_sentences.push_back(
+                    Sentence{sentence, translation, qMin<int>(sentence.count(" ") / 5, MaxDifficulty)});
             }
         }
         file.close();
