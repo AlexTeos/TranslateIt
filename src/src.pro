@@ -37,6 +37,7 @@ HEADERS += \
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/TelegramAPI/src/release/ -ltelegramapi
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/TelegramAPI/src/debug/ -ltelegramapi
+else:unix:!macx: LIBS += -L$$OUT_PWD/TelegramAPI/src/ -ltelegramapi
 
 INCLUDEPATH += $$PWD/TelegramAPI/src
 DEPENDPATH += $$PWD/TelegramAPI/src

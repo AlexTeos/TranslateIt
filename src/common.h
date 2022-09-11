@@ -3,6 +3,7 @@
 
 #include <QHash>
 #include <QString>
+#include <optional>
 
 enum State
 {

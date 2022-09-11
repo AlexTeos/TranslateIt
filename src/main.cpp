@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
     if (argc > 1) settings.setValue("TelegramBotToken", argv[1]);
     if (argc > 2) settings.setValue("TSVPath", argv[2]);
 
-    TranslateItBot bot(settings.value("TelegramBotToken").toString(), settings.value("tsvPath").toString());
+    TranslateItBot bot(settings.value("TelegramBotToken").toString(), settings.value("TSVPath").toString());
     bot.checkUpdates();
 
     return 0;
