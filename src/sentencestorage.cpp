@@ -9,8 +9,8 @@ SentenceStorage::SentenceStorage(const QString& filePath) : m_state(State::Unini
 
 bool SentenceStorage::load(const QString& filePath)
 {
-    QStringList langiagesList = QFileInfo(filePath).fileName().split(QRegExp("[-.]"));
-    if (langiagesList.size() != 3) return false;
+    QStringList langiagesList = QFileInfo(filePath).baseName().split("-");
+    if (langiagesList.size() != 2) return false;
     m_languages.first  = langiagesList[0];
     m_languages.second = langiagesList[1];
 
@@ -24,8 +24,10 @@ bool SentenceStorage::load(const QString& filePath)
             {
                 if (query[1].contains(". ")) continue; // skip too complicated sentences
 
-                QString sentence    = QString(query[1]).remove(QRegExp("[\\n\\r]"));
-                QString translation = QString(query[3]).remove(QRegExp("[\\n\\r]"));
+                QString sentence    = QString(query[1]).remove("\\n");
+                sentence    = QString(query[1]).remove("\\r");
+                QString translation = QString(query[3]).remove("\\n");
+                translation = QString(query[3]).remove("\\r");
                 if (m_sentences.size() > 0 and
                     ((sentence == m_sentences.back().first) or translation == m_sentences.back().second))
                     continue; // skip same sentences
