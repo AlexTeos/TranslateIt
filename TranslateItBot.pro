@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    src \
     src/TelegramAPI \
+    src \
     tests
