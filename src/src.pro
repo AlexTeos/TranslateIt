@@ -10,6 +10,7 @@ CONFIG -= app_bundle
 
 SOURCES += \
     languagestorage.cpp \
+    log.cpp \
     main.cpp \
     sentencestorage.cpp \
     translateitapi.cpp \
@@ -27,6 +28,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     common.h \
     languagestorage.h \
+    log.h \
     sentencestorage.h \
     translateitapi.h \
     translateitbot.h \

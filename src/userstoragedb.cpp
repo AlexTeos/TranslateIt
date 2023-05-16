@@ -10,11 +10,19 @@ UserStorageDB::UserStorageDB(const QString& path)
     QString dbPath = path + "/" + "TranslateItBotDB.sqlite";
     if (!QFile(dbPath).exists())
     {
-        if (not createDataBase(dbPath)) m_state = State::Uninitialized;
+        qInfo() << "Database doesn't exist. Creating it.";
+        if (not createDataBase(dbPath))
+            m_state = State::Uninitialized;
+        else
+            qInfo() << "Database created successfully";
     }
     else
     {
-        if (not openDataBase(dbPath)) m_state = State::Uninitialized;
+        qInfo() << "Connecting to an existing database";
+        if (not openDataBase(dbPath))
+            m_state = State::Uninitialized;
+        else
+            qInfo() << "Database opened successfully";
     }
 
     m_state = State::Initialized;
@@ -29,11 +37,13 @@ bool UserStorageDB::createDataBase(const QString& path)
 {
     if (not openDataBase(path))
     {
+        qCritical() << "Can not open database!";
         return false;
     }
 
     if (not createTables())
     {
+        qCritical() << "Can not create database tables!";
         return false;
     }
 

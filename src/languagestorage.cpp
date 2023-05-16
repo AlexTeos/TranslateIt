@@ -1,5 +1,6 @@
 #include "languagestorage.h"
 
+#include <QDebug>
 #include <QDir>
 
 LanguageStorage::LanguageStorage(const QString& tsvPath) : m_state(State::Uninitialized)
@@ -22,6 +23,13 @@ QSharedPointer<SentenceStorage> LanguageStorage::sentenceStorage(QString langSho
 bool LanguageStorage::load(const QString& tsvPath)
 {
     QStringList tsvFiles = QDir(tsvPath).entryList(QStringList() << "*.tsv", QDir::Files);
+
+    if (tsvFiles.size() == 0)
+    {
+        qCritical() << "No TSV found";
+        return false;
+    }
+
     for (const auto& tsvFile : tsvFiles)
     {
         QSharedPointer<SentenceStorage> sentenceStorage =
@@ -29,7 +37,13 @@ bool LanguageStorage::load(const QString& tsvPath)
         if (sentenceStorage.get()->state() == State::Initialized) m_sentenceStorages.push_back(sentenceStorage);
     }
 
-    return m_sentenceStorages.size();
+    if (m_sentenceStorages.size() == 0)
+    {
+        qCritical() << "No SentenceStorage loaded";
+        return false;
+    }
+
+    return true;
 }
 
 State LanguageStorage::state() const

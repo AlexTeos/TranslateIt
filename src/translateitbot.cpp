@@ -5,8 +5,20 @@
 TranslateItBot::TranslateItBot(const QString& token, const QString& languageStoragePath)
     : m_state(Error), m_languageStorage(languageStoragePath), m_users("./")
 {
-    if (m_languageStorage.state() != State::Initialized) return;
-    if (not m_api.start(token)) return;
+    if (m_languageStorage.state() != State::Initialized)
+    {
+        qCritical() << "LanguageStorage is not initialized!";
+        return;
+    }
+    else
+        qInfo() << "LanguageStorage initialized successfully!";
+    if (not m_api.start(token))
+    {
+        qCritical() << "TelegramBotApi did not start!";
+        return;
+    }
+    else
+        qInfo() << "TelegramBotApi started successfully!";
 
     // TODO: add hidden command (stat, shutdown, ...)
     m_api.configureMenuCommands({{"start", "Get new sentence"},
@@ -31,10 +43,12 @@ void TranslateItBot::checkUpdates()
             {
                 if (update->m_callback_query)
                 {
+                    qDebug() << "New incomig callback query from" << update->m_callback_query->m_from->m_id;
                     processCallBack(update->m_callback_query);
                 }
                 else if (update->m_message)
                 {
+                    qDebug() << "New incomig message from" << update->m_message->m_from->m_id;
                     processMessage(update->m_message);
                 }
                 m_offset = update->m_update_id + 1;
@@ -47,6 +61,7 @@ void TranslateItBot::checkUpdates()
 
             if (m_backupTimer.hasExpired(m_backupInterval))
             {
+                qDebug() << "Start backup";
                 m_users.backup();
                 m_backupTimer.restart();
             }
@@ -158,6 +173,8 @@ bool TranslateItBot::processCmd(User::SPtr user, Telegram::Message::Ptr message,
         // TODO: improve help page
         return m_api.sendMessage(user->id(), "For any questions please text @AlexTeos").has_value();
     }
+
+    qWarning() << "Unrecognize command: " << cmd << "from user:" << user->id();
 
     return false;
 }

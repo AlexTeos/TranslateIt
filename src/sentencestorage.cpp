@@ -1,5 +1,6 @@
 #include "sentencestorage.h"
 
+#include <QDebug>
 #include <QFileInfo>
 
 SentenceStorage::SentenceStorage(const QString& filePath) : m_state(State::Uninitialized)
@@ -9,10 +10,14 @@ SentenceStorage::SentenceStorage(const QString& filePath) : m_state(State::Unini
 
 bool SentenceStorage::load(const QString& filePath)
 {
-    QStringList langiagesList = QFileInfo(filePath).baseName().split("-");
-    if (langiagesList.size() != 2) return false;
-    m_languages.first  = langiagesList[0];
-    m_languages.second = langiagesList[1];
+    QStringList languagesList = QFileInfo(filePath).baseName().split("-");
+    if (languagesList.size() != 2)
+    {
+        qWarning() << "Incorrect TSV filename:" << filePath;
+        return false;
+    }
+    m_languages.first  = languagesList[0];
+    m_languages.second = languagesList[1];
 
     QFile file(filePath);
     if (file.open(QIODevice::ReadOnly))
@@ -25,9 +30,9 @@ bool SentenceStorage::load(const QString& filePath)
                 if (query[1].contains(". ")) continue; // skip too complicated sentences
 
                 QString sentence    = QString(query[1]).remove("\\n");
-                sentence    = QString(query[1]).remove("\\r");
+                sentence            = QString(query[1]).remove("\\r");
                 QString translation = QString(query[3]).remove("\\n");
-                translation = QString(query[3]).remove("\\r");
+                translation         = QString(query[3]).remove("\\r");
                 if (m_sentences.size() > 0 and
                     ((sentence == m_sentences.back().first) or translation == m_sentences.back().second))
                     continue; // skip same sentences
@@ -37,9 +42,18 @@ bool SentenceStorage::load(const QString& filePath)
             }
         }
         file.close();
+
+        if (m_sentences.size() == 0)
+        {
+            qWarning() << "No sentences found in TSV:" << filePath;
+            return false;
+        }
+
+        qInfo() << filePath << "was loaded with" << m_sentences.size() << "sentences";
         return true;
     }
-    file.close();
+
+    qWarning() << "Can not open TSV:" << filePath;
     return false;
 }
 
