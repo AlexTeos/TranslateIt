@@ -8,7 +8,7 @@ class TestLanguageStorage : public QObject
     Q_OBJECT
 
 public:
-    TestLanguageStorage() : m_languageStorage(""){};
+    TestLanguageStorage(const QString& tsvPath) : m_languageStorage(tsvPath){};
 
 private slots:
     void initTestCase();

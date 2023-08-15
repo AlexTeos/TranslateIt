@@ -8,9 +8,16 @@ int main(int argc, char* argv[])
 {
     QCoreApplication a(argc, argv);
 
+    QString tsvPath;
+    if (argc > 1)
+    {
+        tsvPath = QString(argv[1]);
+        argc--;
+    }
+
     TESTLIB_SELFCOVERAGE_START(TestObject)
-    TestSentenceStorage tst_sentenceStorage;
-    TestLanguageStorage tst_languageStorage;
+    TestSentenceStorage tst_sentenceStorage(tsvPath);
+    TestLanguageStorage tst_languageStorage(tsvPath);
     TestUserStorageDB   tst_userstoragedb;
     TestUserCache       tst_usercache;
     TestUserStorage     tst_userstorage;

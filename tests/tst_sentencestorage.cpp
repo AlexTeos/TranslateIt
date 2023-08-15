@@ -2,11 +2,11 @@
 
 void TestSentenceStorage::initTestCase()
 {
-    QStringList tsvFiles = QDir().entryList(QStringList() << "*.tsv", QDir::Files);
+    QStringList tsvFiles = QDir(m_tsvPath).entryList(QStringList() << "*.tsv", QDir::Files);
     QVERIFY(tsvFiles.size());
     for (const auto& tsvFile : tsvFiles)
     {
-        SentenceStorage sentenceStorage(tsvFile);
+        SentenceStorage sentenceStorage(m_tsvPath + tsvFile);
         QVERIFY(sentenceStorage.state() == State::Initialized);
         m_sentenceStorages.push_back(std::move(sentenceStorage));
     }

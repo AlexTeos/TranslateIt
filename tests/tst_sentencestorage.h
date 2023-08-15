@@ -7,6 +7,9 @@ class TestSentenceStorage : public QObject
 {
     Q_OBJECT
 
+public:
+    TestSentenceStorage(const QString& tsvPath) : m_tsvPath(tsvPath){};
+
 private slots:
     void initTestCase();
     void cleanupTestCase();
@@ -14,4 +17,5 @@ private slots:
 
 private:
     QVector<SentenceStorage> m_sentenceStorages;
+    QString                  m_tsvPath;
 };
