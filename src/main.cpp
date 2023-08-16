@@ -4,6 +4,8 @@
 #include "log.h"
 #include "translateitbot.h"
 
+const QString localFolder = "/ext";
+
 void myMessageOutput(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
     switch (type)
@@ -43,17 +45,18 @@ int main(int argc, char* argv[])
 {
     qInstallMessageHandler(myMessageOutput);
 
-    Log::instance().configure("./", "log.log", 1024 * 1024 * 128);
+    Log::instance().configure(localFolder, "TranslateItBot.log", 1024 * 1024 * 128);
 
     QCoreApplication a(argc, argv);
 
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "TranslateIt");
+    QSettings settings(localFolder + "/TranslateIt.ini", QSettings::IniFormat);
     if (argc > 1) settings.setValue("TelegramBotToken", QString(argv[1]));
     if (argc > 2) settings.setValue("TSVPath", QString(argv[2]));
 
     qInfo() << "Start bot id:" << settings.value("TelegramBotToken").toString()
             << "TSVPath:" << settings.value("TSVPath").toString();
-    TranslateItBot bot(settings.value("TelegramBotToken").toString(), settings.value("TSVPath").toString());
+    TranslateItBot bot(
+        settings.value("TelegramBotToken").toString(), settings.value("TSVPath").toString(), localFolder);
     bot.checkUpdates();
 
     return 0;

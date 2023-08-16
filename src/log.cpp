@@ -20,7 +20,7 @@ State Log::configure(QString dir, QString name, qint64 max_size /*, bool debug*/
     m_max_size       = max_size;
     //m_debug          = debug;
 
-    QFile::remove(m_work_directory + m_log_filename);
+    QFile::remove(m_work_directory + "/" + m_log_filename);
     m_state = State::Initialized;
 
     return m_state;
@@ -34,7 +34,7 @@ QString Log::add(QString type, const char* function, QString msg, const char* fi
 
     if (Log::instance().m_state == State::Initialized /* && !((type == "Debug") && !Log::instance().m_debug)*/)
     {
-        QFile log_file(Log::instance().m_work_directory + Log::instance().m_log_filename);
+        QFile log_file(Log::instance().m_work_directory + "/" + Log::instance().m_log_filename);
 
         if (log_file.size() > Log::instance().m_max_size) log_file.remove();
 

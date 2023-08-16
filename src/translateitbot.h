@@ -11,7 +11,7 @@
 class TranslateItBot
 {
 public:
-    TranslateItBot(const QString& token, const QString& tmx);
+    TranslateItBot(const QString& token, const QString& tmx, const QString& localFolder);
 
     void checkUpdates();
     bool processCallBack(Telegram::CallbackQuery::Ptr callback);

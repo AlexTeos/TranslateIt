@@ -2,8 +2,8 @@
 
 #include <QThread>
 
-TranslateItBot::TranslateItBot(const QString& token, const QString& languageStoragePath)
-    : m_state(Error), m_languageStorage(languageStoragePath), m_users("./")
+TranslateItBot::TranslateItBot(const QString& token, const QString& languageStoragePath, const QString& localFolder)
+    : m_state(Error), m_languageStorage(languageStoragePath), m_users(localFolder)
 {
     if (m_languageStorage.state() != State::Initialized)
     {
