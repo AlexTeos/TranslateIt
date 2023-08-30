@@ -1,0 +1,69 @@
+FROM ubuntu:jammy as build
+RUN apt-get update -qq
+RUN apt-get -y install build-essential qtbase5-dev libqt5network5
+
+# copy
+WORKDIR TranslateItBot
+COPY src src
+COPY tests tests
+COPY TranslateItBot.pro ./
+
+# build
+WORKDIR build
+RUN qmake -r ../TranslateItBot.pro -config release 
+RUN make
+RUN ls /usr/lib/arm-linux-gnueabihf
+RUN ls /usr/lib/arm-linux-gnueabihf/qt5/plugins
+
+FROM ubuntu:jammy
+# deploy
+WORKDIR /TranslateItBot
+COPY --from=build /TranslateItBot/build/src/src ./
+COPY --from=build /TranslateItBot/build/src/TelegramAPI/src/libtelegramapi.so.1 ./
+# libs
+COPY --from=build /lib/arm-linux-gnueabihf/libQt5Sql.so.5 ./
+COPY --from=build /lib/arm-linux-gnueabihf/libQt5Core.so.5 ./
+COPY --from=build /lib/arm-linux-gnueabihf/libQt5Network.so.5 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libQt5DBus.so.5 ./
+COPY --from=build /lib/arm-linux-gnueabihf/libicui18n.so.70 ./
+COPY --from=build /lib/arm-linux-gnueabihf/libicuuc.so.70 ./
+COPY --from=build /lib/arm-linux-gnueabihf/libglib-2.0.so.0 ./
+COPY --from=build /lib/arm-linux-gnueabihf/libdouble-conversion.so.3 ./
+#COPY --from=build /lib/arm-linux-gnueabihf/libb2.so.1 ./
+COPY --from=build /lib/arm-linux-gnueabihf/libpcre2-16.so.0 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libbrotlidec.so.1 ./
+#COPY --from=build /usr/lib/arm-linux-gnueabihf/libproxy.so.1 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libicudata.so.70 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libgomp.so.1 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libbrotlicommon.so.1 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libcap.so.2 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libdbus-1.so.3 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libgcrypt.so.20 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libgomp.so.1 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libgssapi_krb5.so.2 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libicui18n.so.70 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libk5crypto.so.3 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libkeyutils.so.1 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libkrb5.so.3 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libkrb5support.so.0 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/liblz4.so.1 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/liblzma.so.5 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libpcre2-16.so.0 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libpcre.so.3 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libsqlite3.so.0 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libsystemd.so.0 ./
+COPY --from=build /usr/lib/arm-linux-gnueabihf/libzstd.so.1 ./
+# plugins
+#COPY --from=build /usr/lib/arm-linux-gnueabihf/qt5/plugins/networkinformation/libqnetworkmanager.so ./networkinformation/
+#COPY --from=build /usr/lib/arm-linux-gnueabihf/qt5/plugins/tls/libqopensslbackend.so ./tls/
+#COPY --from=build /usr/lib/arm-linux-gnueabihf/qt5/plugins/tls/libqcertonlybackend.so ./tls/
+COPY --from=build /usr/lib/arm-linux-gnueabihf/qt5/plugins/sqldrivers/libqsqlite.so ./sqldrivers/
+# tests
+COPY --from=build /TranslateItBot/build/tests/tests ./
+COPY --from=build /TranslateItBot/build/src/TelegramAPI/tests/tests ./telegramapi_tests
+COPY --from=build /lib/arm-linux-gnueabihf/libQt5Test.so.5 ./
+COPY --from=build /TranslateItBot/tests/tsv ./test_tsv
+ENV LD_LIBRARY_PATH=/TranslateItBot
+
+# run
+CMD ["./src"]
