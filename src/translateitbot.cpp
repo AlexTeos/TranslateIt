@@ -2,8 +2,11 @@
 
 #include <QThread>
 
-TranslateItBot::TranslateItBot(const QString& token, const QString& languageStoragePath, const QString& localFolder)
-    : m_state(Error), m_languageStorage(languageStoragePath), m_users(localFolder)
+TranslateItBot::TranslateItBot(const QString& token,
+                               const QString& languageStoragePath,
+                               const QString& localFolder,
+                               const QString& adminId)
+    : m_state(Error), m_languageStorage(languageStoragePath), m_users(localFolder), m_adminId(adminId)
 {
     if (m_languageStorage.state() != State::Initialized)
     {
@@ -12,6 +15,14 @@ TranslateItBot::TranslateItBot(const QString& token, const QString& languageStor
     }
     else
         qInfo() << "LanguageStorage initialized successfully!";
+
+    qRegisterMetaType<Telegram::TelegramError>("Telegram::TelegramError");
+    QObject::connect(
+        &m_api, SIGNAL(telegramError(Telegram::TelegramError)), this, SLOT(telegramError(Telegram::TelegramError)));
+    qRegisterMetaType<Telegram::NetworkError>("Telegram::NetworkError");
+    QObject::connect(
+        &m_api, SIGNAL(networkError(Telegram::NetworkError)), this, SLOT(networkError(Telegram::NetworkError)));
+
     if (not m_api.start(token))
     {
         qCritical() << "TelegramBotApi did not start!";
@@ -57,7 +68,7 @@ void TranslateItBot::checkUpdates()
         else
         {
             // TODO: adjust according to users activity
-            QThread::msleep(100);
+            QThread::msleep(1000);
 
             if (m_backupTimer.hasExpired(m_backupInterval))
             {
@@ -208,4 +219,23 @@ bool TranslateItBot::checkIsUserConfigured(User::SPtr user)
     // TODO: check if languages exist
     return user->langHide() != "Undefined" and user->langShow() != "Undefined" and
            user->langShow() != user->langHide() and user->difficultyMax() >= user->difficultyMin();
+}
+
+bool TranslateItBot::notifyAdmin(QString message)
+{
+    return m_api.sendMessage(m_adminId, message).has_value();
+}
+
+void TranslateItBot::telegramError(Telegram::TelegramError error)
+{
+    QString message =
+        QString("Telegram error occured, code: %1; description: %2").arg(error.m_errorCode).arg(error.m_description);
+    notifyAdmin(message);
+}
+
+void TranslateItBot::networkError(Telegram::NetworkError error)
+{
+    QString message =
+        QString("Network error occured, code: %1; description: %2").arg(error.m_errorCode).arg(error.m_description);
+    notifyAdmin(message);
 }

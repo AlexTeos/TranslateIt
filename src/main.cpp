@@ -52,11 +52,15 @@ int main(int argc, char* argv[])
     QSettings settings(localFolder + "/TranslateIt.ini", QSettings::IniFormat);
     if (argc > 1) settings.setValue("TelegramBotToken", QString(argv[1]));
     if (argc > 2) settings.setValue("TSVPath", QString(argv[2]));
+    if (argc > 3) settings.setValue("AdminID", QString(argv[3]));
 
     qInfo() << "Start bot id:" << settings.value("TelegramBotToken").toString()
-            << "TSVPath:" << settings.value("TSVPath").toString();
-    TranslateItBot bot(
-        settings.value("TelegramBotToken").toString(), settings.value("TSVPath").toString(), localFolder);
+            << "TSVPath:" << settings.value("TSVPath").toString()
+            << " AdminID:" << settings.value("AdminID").toString();
+    TranslateItBot bot(settings.value("TelegramBotToken").toString(),
+                       settings.value("TSVPath").toString(),
+                       localFolder,
+                       settings.value("AdminID").toString());
     bot.checkUpdates();
 
     return 0;
